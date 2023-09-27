@@ -8,8 +8,17 @@ environment:
   flutter: '>=3.3.0'
 
 dependencies:
+  convert: ^3.1.1
+  flutter_bitcoin: ^1.0.1
+  http: ^1.1.0
+  json_annotation: ^4.8.0
+  pointycastle: ^3.7.3
   ffi: ^2.1.0
   plugin_platform_interface: ^2.0.2
+  bip32: ^2.0.0
+  bip39: ^1.0.6
+  bech32: ^0.2.2
+  bs58check: ^1.0.2
 
 dev_dependencies:
   ffigen: ^6.1.2
