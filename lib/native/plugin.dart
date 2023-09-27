@@ -66,7 +66,7 @@ ffi.Pointer<ffi.Uint8> publicKeyInputPtr =
 const int publicKeyInputSize = PUBLIC_KEY_UNCOMPRESSED_SIZE;
 
 ffi.Pointer<ffi.Uint8> privateKeyInputPtr =
-    _lookup<ffi.Uint8>('PRIVATE_KEY_INPUT');
+    _lookup<ffi.Uint8>('PRIVATE_INPUT'); //PRIVATE_KEY_INPUT
 const int privateKeyInputSize = PRIVATE_KEY_SIZE;
 
 ffi.Pointer<ffi.Uint8> nonceOutputPtr = _lookup<ffi.Uint8>('NONCE_OUTPUT');

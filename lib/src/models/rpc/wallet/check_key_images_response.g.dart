@@ -8,38 +8,54 @@ part of 'check_key_images_response.dart';
 
 KeyImageResult _$KeyImageResultFromJson(Map<String, dynamic> json) =>
     KeyImageResult(
-      status: json['status'] as String,
-      msg: json['msg'] as String,
-      spent: json['spent'] as bool,
-      spentinmempool: json['spentinmempool'] as bool,
+      status: json['status'] as String?,
+      msg: json['msg'] as String?,
+      spent: json['spent'] as bool?,
+      spentinmempool: json['spentinmempool'] as bool?,
       txid: json['txid'] as String?,
     );
 
-Map<String, dynamic> _$KeyImageResultToJson(KeyImageResult instance) =>
-    <String, dynamic>{
-      'status': instance.status,
-      'msg': instance.msg,
-      'spent': instance.spent,
-      'spentinmempool': instance.spentinmempool,
-      'txid': instance.txid,
-    };
+Map<String, dynamic> _$KeyImageResultToJson(KeyImageResult instance) {
+  final val = <String, dynamic>{};
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('status', instance.status);
+  writeNotNull('msg', instance.msg);
+  writeNotNull('spent', instance.spent);
+  writeNotNull('spentinmempool', instance.spentinmempool);
+  writeNotNull('txid', instance.txid);
+  return val;
+}
 
 CheckKeyImagesResponse _$CheckKeyImagesResponseFromJson(
         Map<String, dynamic> json) =>
     CheckKeyImagesResponse(
-      (json['result'] as List<dynamic>)
-          .map((e) => KeyImageResult.fromJson(e as Map<String, dynamic>))
+      (json['result'] as List<dynamic>?)
+          ?.map((e) => KeyImageResult.fromJson(e as Map<String, dynamic>))
           .toList(),
-      id: json['id'] as String?,
+      id: json['id'] as int?,
       error: json['error'] == null
           ? null
           : JsonRpcError.fromJson(json['error'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$CheckKeyImagesResponseToJson(
-        CheckKeyImagesResponse instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'error': instance.error,
-      'result': instance.result,
-    };
+    CheckKeyImagesResponse instance) {
+  final val = <String, dynamic>{};
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('id', instance.id);
+  writeNotNull('error', instance.error);
+  writeNotNull('result', instance.result);
+  return val;
+}

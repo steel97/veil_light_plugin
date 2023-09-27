@@ -9,39 +9,58 @@ part of 'import_lightwallet_address_response.dart';
 ImportLightwalletStatus _$ImportLightwalletStatusFromJson(
         Map<String, dynamic> json) =>
     ImportLightwalletStatus(
-      json['result'] as String,
-      json['stealth_address_bech'] as String,
-      json['stealth_address_normal'] as String,
-      json['imported_on'] as int,
-      json['created_on'] as int,
-      json['watchonly'] as bool,
+      result: json['result'] as String?,
+      stealth_address_bech: json['stealth_address_bech'] as String?,
+      stealth_address_normal: json['stealth_address_normal'] as String?,
+      imported_on: json['imported_on'] as int?,
+      created_on: json['created_on'] as int?,
+      watchonly: json['watchonly'] as bool?,
     );
 
 Map<String, dynamic> _$ImportLightwalletStatusToJson(
-        ImportLightwalletStatus instance) =>
-    <String, dynamic>{
-      'result': instance.result,
-      'stealth_address_bech': instance.stealth_address_bech,
-      'stealth_address_normal': instance.stealth_address_normal,
-      'imported_on': instance.imported_on,
-      'created_on': instance.created_on,
-      'watchonly': instance.watchonly,
-    };
+    ImportLightwalletStatus instance) {
+  final val = <String, dynamic>{};
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('result', instance.result);
+  writeNotNull('stealth_address_bech', instance.stealth_address_bech);
+  writeNotNull('stealth_address_normal', instance.stealth_address_normal);
+  writeNotNull('imported_on', instance.imported_on);
+  writeNotNull('created_on', instance.created_on);
+  writeNotNull('watchonly', instance.watchonly);
+  return val;
+}
 
 ImportLightwalletAddressResponse _$ImportLightwalletAddressResponseFromJson(
         Map<String, dynamic> json) =>
     ImportLightwalletAddressResponse(
-      ImportLightwalletStatus.fromJson(json['result'] as Map<String, dynamic>),
-      id: json['id'] as String?,
+      json['result'] == null
+          ? null
+          : ImportLightwalletStatus.fromJson(
+              json['result'] as Map<String, dynamic>),
+      id: json['id'] as int?,
       error: json['error'] == null
           ? null
           : JsonRpcError.fromJson(json['error'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$ImportLightwalletAddressResponseToJson(
-        ImportLightwalletAddressResponse instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'error': instance.error,
-      'result': instance.result,
-    };
+    ImportLightwalletAddressResponse instance) {
+  final val = <String, dynamic>{};
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('id', instance.id);
+  writeNotNull('error', instance.error);
+  writeNotNull('result', instance.result);
+  return val;
+}

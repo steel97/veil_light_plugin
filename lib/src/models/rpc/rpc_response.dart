@@ -3,12 +3,12 @@ import 'package:veil_light_plugin/src/models/rpc/json_rpc_error.dart';
 
 part 'rpc_response.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class RpcResponse {
-  final String? id;
-  final JsonRpcError? error;
+  int? id;
+  JsonRpcError? error;
 
-  RpcResponse({required this.id, required this.error});
+  RpcResponse({this.id, this.error});
 
   factory RpcResponse.fromJson(Map<String, dynamic> json) =>
       _$RpcResponseFromJson(json);

@@ -26,26 +26,35 @@ WatchOnlyTx _$WatchOnlyTxFromJson(Map<String, dynamic> json) => WatchOnlyTx(
       json['raw'] as String,
     );
 
-Map<String, dynamic> _$WatchOnlyTxToJson(WatchOnlyTx instance) =>
-    <String, dynamic>{
-      'type': instance.type,
-      'keyimage': instance.keyimage,
-      'amount': instance.amount,
-      'spent': instance.spent,
-      'spent_in': instance.spent_in,
-      'dbindex': instance.dbindex,
-      'tx_hash': instance.tx_hash,
-      'n': instance.n,
-      'ringct_index': instance.ringct_index,
-      'pubkey': instance.pubkey,
-      'pubkey_hash': instance.pubkey_hash,
-      'scriptPubKey': instance.scriptPubKey,
-      'destination_bech32': instance.destination_bech32,
-      'destination': instance.destination,
-      'valueCommitment': instance.valueCommitment,
-      'data_hex': instance.data_hex,
-      'raw': instance.raw,
-    };
+Map<String, dynamic> _$WatchOnlyTxToJson(WatchOnlyTx instance) {
+  final val = <String, dynamic>{
+    'type': instance.type,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('keyimage', instance.keyimage);
+  writeNotNull('amount', instance.amount);
+  writeNotNull('spent', instance.spent);
+  writeNotNull('spent_in', instance.spent_in);
+  val['dbindex'] = instance.dbindex;
+  val['tx_hash'] = instance.tx_hash;
+  val['n'] = instance.n;
+  writeNotNull('ringct_index', instance.ringct_index);
+  writeNotNull('pubkey', instance.pubkey);
+  writeNotNull('pubkey_hash', instance.pubkey_hash);
+  writeNotNull('scriptPubKey', instance.scriptPubKey);
+  writeNotNull('destination_bech32', instance.destination_bech32);
+  writeNotNull('destination', instance.destination);
+  val['valueCommitment'] = instance.valueCommitment;
+  val['data_hex'] = instance.data_hex;
+  val['raw'] = instance.raw;
+  return val;
+}
 
 GetWatchOnlyTxesResult _$GetWatchOnlyTxesResultFromJson(
         Map<String, dynamic> json) =>
@@ -68,17 +77,28 @@ Map<String, dynamic> _$GetWatchOnlyTxesResultToJson(
 GetWatchOnlyTxesResponse _$GetWatchOnlyTxesResponseFromJson(
         Map<String, dynamic> json) =>
     GetWatchOnlyTxesResponse(
-      GetWatchOnlyTxesResult.fromJson(json['result'] as Map<String, dynamic>),
-      id: json['id'] as String?,
+      json['result'] == null
+          ? null
+          : GetWatchOnlyTxesResult.fromJson(
+              json['result'] as Map<String, dynamic>),
+      id: json['id'] as int?,
       error: json['error'] == null
           ? null
           : JsonRpcError.fromJson(json['error'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$GetWatchOnlyTxesResponseToJson(
-        GetWatchOnlyTxesResponse instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'error': instance.error,
-      'result': instance.result,
-    };
+    GetWatchOnlyTxesResponse instance) {
+  final val = <String, dynamic>{};
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('id', instance.id);
+  writeNotNull('error', instance.error);
+  writeNotNull('result', instance.result);
+  return val;
+}

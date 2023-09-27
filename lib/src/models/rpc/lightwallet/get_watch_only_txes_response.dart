@@ -4,7 +4,7 @@ import "package:veil_light_plugin/src/models/rpc/rpc_response.dart";
 
 part 'get_watch_only_txes_response.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class WatchOnlyTx {
   final String type; //"stealth" | "anon"
   final String? keyimage;
@@ -54,7 +54,7 @@ class WatchOnlyTx {
   Map<String, dynamic> toJson() => _$WatchOnlyTxToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class GetWatchOnlyTxesResult {
   final List<WatchOnlyTx> anon;
   final List<WatchOnlyTx> stealth;
@@ -67,12 +67,11 @@ class GetWatchOnlyTxesResult {
   Map<String, dynamic> toJson() => _$GetWatchOnlyTxesResultToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class GetWatchOnlyTxesResponse extends RpcResponse {
-  final GetWatchOnlyTxesResult result;
+  GetWatchOnlyTxesResult? result;
 
-  GetWatchOnlyTxesResponse(this.result,
-      {required super.id, required super.error});
+  GetWatchOnlyTxesResponse(this.result, {super.id, super.error});
 
   factory GetWatchOnlyTxesResponse.fromJson(Map<String, dynamic> json) =>
       _$GetWatchOnlyTxesResponseFromJson(json);

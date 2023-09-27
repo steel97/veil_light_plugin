@@ -7,8 +7,11 @@ class RpcRequester {
   static String NODE_URL = "https://explorer-api.veil-project.com";
   static String NODE_PASSWORD = "";
 
-  static Future<T> send<T>(RpcRequest request) async {
-    Map<String, String> headers = {};
+  static Future<Map<String, dynamic>> send<T>(RpcRequest request) async {
+    Map<String, String> headers = {
+      'Content-type': 'application/json',
+      'Accept': 'application/json',
+    };
     //var useCredentials = false;
     if (RpcRequester.NODE_PASSWORD != "") {
       headers = {'Authorization': "Basic ${RpcRequester.NODE_PASSWORD}"};
@@ -20,7 +23,6 @@ class RpcRequester {
         headers: headers, body: jsonEncode(request.toJson()));
 
     Map<String, dynamic> data = jsonDecode(rawResponse.body);
-    T resp = ((T) as dynamic).fromJson(data);
-    return resp;
+    return data;
   }
 }

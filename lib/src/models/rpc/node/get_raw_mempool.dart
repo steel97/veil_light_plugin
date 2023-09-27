@@ -4,11 +4,11 @@ import "package:veil_light_plugin/src/models/rpc/rpc_response.dart";
 
 part 'get_raw_mempool.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class GetRawMempool extends RpcResponse {
-  final List<String> result;
+  List<String>? result;
 
-  GetRawMempool(this.result, {required super.id, required super.error});
+  GetRawMempool(this.result, {super.id, super.error});
 
   factory GetRawMempool.fromJson(Map<String, dynamic> json) =>
       _$GetRawMempoolFromJson(json);

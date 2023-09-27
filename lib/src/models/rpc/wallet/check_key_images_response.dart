@@ -4,20 +4,16 @@ import 'package:veil_light_plugin/src/models/rpc/rpc_response.dart';
 
 part 'check_key_images_response.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class KeyImageResult {
-  final String status;
-  final String msg;
-  final bool spent;
-  final bool spentinmempool;
+  String? status;
+  String? msg;
+  bool? spent;
+  bool? spentinmempool;
   String? txid;
 
   KeyImageResult(
-      {required this.status,
-      required this.msg,
-      required this.spent,
-      required this.spentinmempool,
-      required this.txid});
+      {this.status, this.msg, this.spent, this.spentinmempool, this.txid});
 
   factory KeyImageResult.fromJson(Map<String, dynamic> json) =>
       _$KeyImageResultFromJson(json);
@@ -25,12 +21,11 @@ class KeyImageResult {
   Map<String, dynamic> toJson() => _$KeyImageResultToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class CheckKeyImagesResponse extends RpcResponse {
-  List<KeyImageResult> result;
+  List<KeyImageResult>? result;
 
-  CheckKeyImagesResponse(this.result,
-      {required super.id, required super.error});
+  CheckKeyImagesResponse(this.result, {super.id, super.error});
 
   factory CheckKeyImagesResponse.fromJson(Map<String, dynamic> json) =>
       _$CheckKeyImagesResponseFromJson(json);

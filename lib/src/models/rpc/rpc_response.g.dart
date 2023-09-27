@@ -7,14 +7,22 @@ part of 'rpc_response.dart';
 // **************************************************************************
 
 RpcResponse _$RpcResponseFromJson(Map<String, dynamic> json) => RpcResponse(
-      id: json['id'] as String?,
+      id: json['id'] as int?,
       error: json['error'] == null
           ? null
           : JsonRpcError.fromJson(json['error'] as Map<String, dynamic>),
     );
 
-Map<String, dynamic> _$RpcResponseToJson(RpcResponse instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'error': instance.error,
-    };
+Map<String, dynamic> _$RpcResponseToJson(RpcResponse instance) {
+  final val = <String, dynamic>{};
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('id', instance.id);
+  writeNotNull('error', instance.error);
+  return val;
+}

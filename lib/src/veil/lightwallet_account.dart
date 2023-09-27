@@ -62,7 +62,7 @@ class LightwalletAccount {
     return amount;
   }
 
-  Future getBalanceFormatted(
+  Future<String> getBalanceFormatted(
       List<LightwalletAddress> input, List<String> substractTxes) async {
     var res = await getBalanceRaw(input, substractTxes);
     return res.toStringAsFixed(_wallet.getChainParams().COIN_DIGITS);

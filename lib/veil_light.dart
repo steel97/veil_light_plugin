@@ -4,5 +4,6 @@
 library;
 
 export 'src/veil_light_base.dart';
+export 'src/veil/chainparams.dart';
 
 // TODO: Export any libraries intended for clients of this package.

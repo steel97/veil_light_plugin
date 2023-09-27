@@ -4,16 +4,16 @@ import "package:veil_light_plugin/src/models/rpc/rpc_response.dart";
 
 part 'get_anon_outputs_response.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class AnonOutput {
-  final int ringctindex;
-  final String pubkey;
-  final String commitment;
-  final String tx_hash;
-  final String tx_index; // number?
-  final int blockheight;
-  final int compromised;
-  final String raw;
+  int? ringctindex;
+  String? pubkey;
+  String? commitment;
+  String? tx_hash;
+  String? tx_index; // number?
+  int? blockheight;
+  int? compromised;
+  String? raw;
 
   AnonOutput(
       {required this.ringctindex,
@@ -31,12 +31,11 @@ class AnonOutput {
   Map<String, dynamic> toJson() => _$AnonOutputToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class GetAnonOutputsResponse extends RpcResponse {
-  final List<AnonOutput> result;
+  List<AnonOutput>? result;
 
-  GetAnonOutputsResponse(
-      {required this.result, required super.id, required super.error});
+  GetAnonOutputsResponse({this.result, super.id, super.error});
 
   factory GetAnonOutputsResponse.fromJson(Map<String, dynamic> json) =>
       _$GetAnonOutputsResponseFromJson(json);

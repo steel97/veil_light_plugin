@@ -50,19 +50,21 @@ class Lightwallet {
 
   static Future<dynamic> getAnonOutputs(int vtxoutCount,
       {int ringSize = 5}) async {
-    var response = await RpcRequester.send<GetAnonOutputsResponse>(RpcRequest(
+    var responseRes = await RpcRequester.send(RpcRequest(
         jsonrpc: "1.0",
         method: "getanonoutputs",
         params: [vtxoutCount, ringSize] // inputSize, ringSize
         ));
-    return LightwalletTransactionBuilder.AnonOutputsToObj(response.result);
+    var response = GetAnonOutputsResponse.fromJson(responseRes);
+    return LightwalletTransactionBuilder.AnonOutputsToObj(
+        response.result ?? []);
   }
 
   static Future<PublishTransactionResult> publishTransaction(
       String rawTx) async {
-    var response = await RpcRequester.send<SendRawTransactionResponse>(
-        RpcRequest(
-            jsonrpc: "1.0", method: "sendrawtransaction", params: [rawTx]));
+    var responseRes = await RpcRequester.send(RpcRequest(
+        jsonrpc: "1.0", method: "sendrawtransaction", params: [rawTx]));
+    var response = SendRawTransactionResponse.fromJson(responseRes);
 
     if (response.error != null) {
       return PublishTransactionResult(

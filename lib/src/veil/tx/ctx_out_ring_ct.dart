@@ -47,9 +47,10 @@ class CTxOutRingCT {
     var nonce = ecc.ECDH_VEIL(_vchEphemPK!, destinationKeyPriv);
 
     var hasher = SHA256Digest();
-    hasher.update(nonce!, 0, 32);
-    var nonceHashed = Uint8List(32);
-    hasher.doFinal(nonceHashed, 32);
+    //hasher.update(nonce!, 0, 32);
+    //var nonceHashed = Uint8List(32);
+    //hasher.doFinal(nonceHashed, 32);
+    var nonceHashed = hasher.process(nonce!);
 
     var amountres =
         ecc.rangeProofRewind(nonceHashed, _commitment!, _vRangeproof!);

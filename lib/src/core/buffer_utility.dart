@@ -33,14 +33,14 @@ class BufferReader {
   }
 
   Uint8List readSlice(int size) {
-    var slice = buffer.sublist(offset, size);
+    var slice = buffer.sublist(offset, offset + size);
     offset += size;
     return slice;
   }
 
   Uint8List readVarSlice() {
     var size = readVarInt();
-    var res = buffer.sublist(offset, size);
+    var res = buffer.sublist(offset, offset + size);
     offset += size;
     return res;
   }

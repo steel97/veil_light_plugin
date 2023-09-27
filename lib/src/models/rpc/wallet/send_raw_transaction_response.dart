@@ -4,12 +4,11 @@ import "package:veil_light_plugin/src/models/rpc/rpc_response.dart";
 
 part 'send_raw_transaction_response.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class SendRawTransactionResponse extends RpcResponse {
-  final String? result;
+  String? result;
 
-  SendRawTransactionResponse(this.result,
-      {required super.id, required super.error});
+  SendRawTransactionResponse(this.result, {super.id, super.error});
 
   factory SendRawTransactionResponse.fromJson(Map<String, dynamic> json) =>
       _$SendRawTransactionResponseFromJson(json);

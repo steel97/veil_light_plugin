@@ -4,22 +4,22 @@ import "package:veil_light_plugin/src/models/rpc/rpc_response.dart";
 
 part 'import_lightwallet_address_response.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class ImportLightwalletStatus {
-  final String result;
-  final String stealth_address_bech;
-  final String stealth_address_normal;
-  final int imported_on;
-  final int created_on;
-  final bool watchonly;
+  String? result;
+  String? stealth_address_bech;
+  String? stealth_address_normal;
+  int? imported_on;
+  int? created_on;
+  bool? watchonly;
 
   ImportLightwalletStatus(
-      this.result,
+      {this.result,
       this.stealth_address_bech,
       this.stealth_address_normal,
       this.imported_on,
       this.created_on,
-      this.watchonly);
+      this.watchonly});
 
   factory ImportLightwalletStatus.fromJson(Map<String, dynamic> json) =>
       _$ImportLightwalletStatusFromJson(json);
@@ -27,12 +27,11 @@ class ImportLightwalletStatus {
   Map<String, dynamic> toJson() => _$ImportLightwalletStatusToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class ImportLightwalletAddressResponse extends RpcResponse {
-  final ImportLightwalletStatus result;
+  ImportLightwalletStatus? result;
 
-  ImportLightwalletAddressResponse(this.result,
-      {required super.id, required super.error});
+  ImportLightwalletAddressResponse(this.result, {super.id, super.error});
 
   factory ImportLightwalletAddressResponse.fromJson(
           Map<String, dynamic> json) =>

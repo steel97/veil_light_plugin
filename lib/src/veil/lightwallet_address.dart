@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:convert/convert.dart';
 import 'package:veil_light_plugin/src/core/crypto.dart';
+import 'package:veil_light_plugin/src/models/build_transaction_result.dart';
 import 'package:veil_light_plugin/src/models/rpc/lightwallet/get_watch_only_status_response.dart';
 import 'package:veil_light_plugin/src/models/rpc/lightwallet/get_watch_only_txes_response.dart';
 import 'package:veil_light_plugin/src/models/rpc/lightwallet/import_lightwallet_address_response.dart';
@@ -44,26 +45,26 @@ class LightwalletAddress {
     var scanKeyPriv = hex.encode(getScanKey()!.privateKey!);
     var spendKeyPub = hex.encode(getSpendKey()!.publicKey);
 
+    var importResponseRes = await RpcRequester.send(RpcRequest(
+        jsonrpc: "1.0",
+        method: "importlightwalletaddress",
+        params: [scanKeyPriv, spendKeyPub, fromBlock]));
     var importResponse =
-        await RpcRequester.send<ImportLightwalletAddressResponse>(RpcRequest(
-            jsonrpc: "1.0",
-            method: "importlightwalletaddress",
-            params: [scanKeyPriv, spendKeyPub, fromBlock]));
-
+        ImportLightwalletAddressResponse.fromJson(importResponseRes);
     var address = "";
 
     if (importResponse.error != null) {
-      var importStatus = await RpcRequester.send<GetWatchOnlyStatusResponse>(
-          RpcRequest(
-              jsonrpc: "1.0",
-              method: "getwatchonlystatus",
-              params: [scanKeyPriv, spendKeyPub]));
+      var importStatusRes = await RpcRequester.send(RpcRequest(
+          jsonrpc: "1.0",
+          method: "getwatchonlystatus",
+          params: [scanKeyPriv, spendKeyPub]));
+      var importStatus = GetWatchOnlyStatusResponse.fromJson(importStatusRes);
 
-      _syncStatus = importStatus.result.status;
+      _syncStatus = importStatus.result?.status ?? "unknown";
 
-      address = importStatus.result.stealth_address;
+      address = importStatus.result?.stealth_address ?? "";
     } else {
-      address = importResponse.result.stealth_address_bech;
+      address = importResponse.result!.stealth_address_bech!;
     }
 
     _syncWithNodeCalled = true;
@@ -79,13 +80,14 @@ class LightwalletAddress {
     var scanKey = getScanKey();
     var spendKey = getSpendKey();
 
-    var response = await RpcRequester.send<GetWatchOnlyTxesResponse>(RpcRequest(
+    var responseRes = await RpcRequester.send(RpcRequest(
         jsonrpc: "1.0",
         method: "getwatchonlytxes",
         params: [hex.encode(scanKey!.privateKey!)]));
+    var response = GetWatchOnlyTxesResponse.fromJson(responseRes);
 
     List<CWatchOnlyTxWithIndex> txes = [];
-    for (var tx in response.result.anon) {
+    for (var tx in response.result?.anon ?? []) {
       var txObj = CWatchOnlyTxWithIndex();
       txObj.deserialize(Uint8List.fromList(hex.decode(tx.raw)), tx.raw);
       txObj.getRingCtOut()?.decodeTx(spendKey!, scanKey!);
@@ -100,15 +102,16 @@ class LightwalletAddress {
       keyimages.add(ki);
     }
     // get keyimages info
-    var kiResponse = await RpcRequester.send<CheckKeyImagesResponse>(RpcRequest(
+    var kiResponseRes = await RpcRequester.send(RpcRequest(
         jsonrpc: "1.0", method: "checkkeyimages", params: [keyimages]));
+    var kiResponse = CheckKeyImagesResponse.fromJson(kiResponseRes);
     if (kiResponse.error != null) return null;
 
     // fix key images response
     List<KeyImageResult> newKeyImageRes = [];
-    for (var i = 0; i < kiResponse.result.length; i++) {
+    for (var i = 0; i < (kiResponse.result?.length ?? 0); i++) {
       var tx = txes[i];
-      var keyImageRes = kiResponse.result[i];
+      var keyImageRes = kiResponse.result![i];
       keyImageRes.txid = tx.getId();
       newKeyImageRes.add(keyImageRes);
     }
@@ -196,12 +199,12 @@ class LightwalletAddress {
     return _addressKey?.deriveHardened(2);
   }
 
-  buildTransaction(
+  Future<BuildTransactionResult> buildTransaction(
       List<CVeilRecipient> recipients,
       List<CWatchOnlyTxWithIndex> vSpendableTx,
       bool strategyUseSingleTxPriority,
       {int ringSize = 5}) async {
-    var chainParams = this._lwAccount.getWallet().getChainParams();
+    var chainParams = _lwAccount.getWallet().getChainParams();
     var vDummyOutputs = await Lightwallet.getAnonOutputs(vSpendableTx.length,
         ringSize: ringSize);
 

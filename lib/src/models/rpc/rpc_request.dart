@@ -2,10 +2,10 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'rpc_request.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class RpcRequest {
   final String jsonrpc;
-  final String? id;
+  final int? id;
   final String method;
   final List<dynamic>? params;
 

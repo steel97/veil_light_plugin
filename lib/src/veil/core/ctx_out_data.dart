@@ -4,7 +4,7 @@ import "package:veil_light_plugin/src/veil/core/ctx_out_base.dart";
 import "package:veil_light_plugin/src/veil/core/output_types.dart";
 
 class CTxOutData extends CTxOutBase {
-  final Uint8List vData;
+  Uint8List vData;
 
   CTxOutData(this.vData) : super(nVersion: OutputTypes.OUTPUT_DATA.value);
 

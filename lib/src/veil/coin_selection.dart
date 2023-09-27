@@ -5,7 +5,7 @@ import 'package:veil_light_plugin/src/veil/chainparams.dart';
 class CoinSelection {
   CoinSelection(Chainparams params) {
     MIN_CHANGE = params.CENT;
-    MIN_FINAL_CHANGE = (MIN_CHANGE / BigInt.from(2)) as BigInt;
+    MIN_FINAL_CHANGE = BigInt.from(MIN_CHANGE / BigInt.from(2));
   }
   //! target minimum change amount
   BigInt MIN_CHANGE = BigInt.from(0);

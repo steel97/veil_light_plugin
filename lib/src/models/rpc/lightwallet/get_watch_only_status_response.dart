@@ -4,16 +4,13 @@ import "package:veil_light_plugin/src/models/rpc/rpc_response.dart";
 
 part 'get_watch_only_status_response.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class WatchOnlyStatus {
-  final String status; // "failed" | "synced" | "scanning"
-  final String stealth_address;
-  final int? transactions_found;
+  String? status; // "failed" | "synced" | "scanning"
+  String? stealth_address;
+  int? transactions_found;
 
-  WatchOnlyStatus(
-      {required this.status,
-      required this.stealth_address,
-      required this.transactions_found});
+  WatchOnlyStatus({this.status, this.stealth_address, this.transactions_found});
 
   factory WatchOnlyStatus.fromJson(Map<String, dynamic> json) =>
       _$WatchOnlyStatusFromJson(json);
@@ -21,12 +18,11 @@ class WatchOnlyStatus {
   Map<String, dynamic> toJson() => _$WatchOnlyStatusToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class GetWatchOnlyStatusResponse extends RpcResponse {
-  final WatchOnlyStatus result;
+  WatchOnlyStatus? result;
 
-  GetWatchOnlyStatusResponse(this.result,
-      {required super.id, required super.error});
+  GetWatchOnlyStatusResponse(this.result, {super.id, super.error});
 
   factory GetWatchOnlyStatusResponse.fromJson(Map<String, dynamic> json) =>
       _$GetWatchOnlyStatusResponseFromJson(json);

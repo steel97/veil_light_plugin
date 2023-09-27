@@ -68,8 +68,8 @@ class CWatchOnlyTx {
       return 0;
     }
 
-    return ((_ringctout!.getAmount() ?? BigInt.from(0)) as int) /
-        (chainParams.COIN as int);
+    return ((_ringctout!.getAmount() ?? BigInt.from(0)).toInt()) /
+        (chainParams.COIN.toInt());
   }
 
   CTxOutRingCT? getRingCtOut() {
