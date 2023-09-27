@@ -1,6 +1,6 @@
 # veil_light_plugin
 
-A new Flutter FFI plugin project.
+Port of veil-secp2561k to dart/flutter
 
 ## Getting Started
 
