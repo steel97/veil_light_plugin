@@ -1,6 +1,8 @@
 // ignore_for_file: empty_catches, non_constant_identifier_names, constant_identifier_names
 
+import 'dart:math';
 import 'dart:typed_data';
+import 'package:pointycastle/api.dart';
 import 'package:pointycastle/digests/sha256.dart';
 import 'package:pointycastle/random/fortuna_random.dart';
 
@@ -73,6 +75,7 @@ import 'package:veil_light_plugin/src/veil/tx/cwatch_only_tx.dart';
 import 'package:veil_light_plugin/src/veil/tx/cwatch_only_tx_with_index.dart';
 
 var random = FortunaRandom();
+var _sGen = Random.secure();
 
 class SpendableTxForValue {
   List<CWatchOnlyTxWithIndex> vSpendTheseTx;
@@ -179,7 +182,10 @@ class LightwalletTransactionBuilder {
       List<CLightWalletAnonOutputData> vDummyOutputs,
       bool strategyUseSingleTxPriority,
       int ringSize) {
-    var response = BuildTransactionResult(0, 0, txid: null);
+    random.seed(KeyParameter(
+        Uint8List.fromList(List.generate(32, (_) => _sGen.nextInt(255)))));
+
+    var response = BuildTransactionResult(0, 0, txdata: null);
 
     var coinSelection = CoinSelection(chainParams);
 
@@ -198,9 +204,9 @@ class LightwalletTransactionBuilder {
       var destination = LightwalletTransactionBuilder.getTypeOut(rcp.address);
       var r = CTempRecipient();
       r.nType = destination.type.value;
-      r.setAmount(rcp.amount as int);
+      r.setAmount(rcp.amount.round());
       r.address = destination;
-      if (r.nType == OutputTypes.OUTPUT_STANDARD) {
+      if (r.nType == OutputTypes.OUTPUT_STANDARD.value) {
         r.fScriptSet = true;
         r.scriptPubKey = destination?.scriptPubKey;
       }
@@ -361,15 +367,15 @@ class LightwalletTransactionBuilder {
       nRemainingInputs -= nInputs;
     }
 
-    vMI = [];
-    vInputBlinds = [];
+    vMI = List.filled(nTxRingSigs, List.empty());
+    vInputBlinds = List.filled(nTxRingSigs, Uint8List(32));
     vSecretColumns = [];
     //vMI.resize(nTxRingSigs);
     //vInputBlinds.resize(nTxRingSigs);
     //vSecretColumns.resize(nTxRingSigs);
     for (var i = 0; i < nTxRingSigs; i++) {
       vMI[i] = [];
-      vInputBlinds[i] = Uint8List(32);
+      //vInputBlinds[i] = Uint8List(32);
       vSecretColumns.add(0);
     }
 
@@ -537,8 +543,8 @@ class LightwalletTransactionBuilder {
       throw SignAndVerifyFailed("Failed LightWalletSignAndVerifyTx");
     }
 
-    var txId = txNew.encode().toString("hex"); //EncodeHexTx(*txRef);
-    response.txid = txId;
+    var txData = hex.encode(txNew.encode()); //EncodeHexTx(*txRef);
+    response.txdata = txData;
     response.amountSent = nValueOut;
     return response;
   }
@@ -948,7 +954,7 @@ class LightwalletTransactionBuilder {
   static CTxOutBase? createOutput(CTempRecipient r) {
     // int
     CTxOutBase? txbout;
-    switch (r.nType as OutputTypes) {
+    switch (OutputTypes.values[r.nType ?? 0]) {
       case OutputTypes.OUTPUT_DATA:
         txbout = CTxOutData(r.vData!);
         break;
@@ -1077,10 +1083,11 @@ class LightwalletTransactionBuilder {
     // TODO: how to pick best?
 
     var eMin = nDiv10 / 2;
-    exponent.num = int.parse((eMin +
-            LightwalletTransactionBuilder.getRandInt(
-                int.parse((nDiv10 - eMin).toString())))
-        .toString());
+    exponent.num = double.parse((eMin +
+                LightwalletTransactionBuilder.getRandInt(
+                    double.parse((nDiv10 - eMin).toString()).round()))
+            .toString())
+        .round();
 
     nTest = nValueIn ~/
         LightwalletTransactionBuilder.ipow(
@@ -1294,7 +1301,7 @@ class LightwalletTransactionBuilder {
         vSecretColumns[l] =
             LightwalletTransactionBuilder.getRandInt(nSigRingSize.num);
 
-        vMI[l] = resizeNumArr(vMI[l], vCoins.length);
+        vMI[l] = resizeNumArr<List<int>>(vMI[l], vCoins.length, []);
         //vMI[l].resize(currentSize);
 
         for (var k = 0; k < vCoins.length /*vSelectedTxes.length*/; ++k) {
@@ -1459,7 +1466,13 @@ class LightwalletTransactionBuilder {
 
           var mlen = message.length;
           var nRangeProofLen = 5134;
-          pvRangeproof = pvRangeproof.sublist(0, nRangeProofLen);
+          if (pvRangeproof.length >= nRangeProofLen) {
+            pvRangeproof = pvRangeproof.sublist(0, nRangeProofLen);
+          } else {
+            var nlist = Uint8List(nRangeProofLen);
+            nlist.setAll(0, pvRangeproof);
+            pvRangeproof = nlist;
+          }
 
           var min_value = NumPass(0);
           var ct_exponent = NumPass(2);
@@ -1612,7 +1625,7 @@ class LightwalletTransactionBuilder {
       var randSeed = random.nextBytes(32);
 
       List<Uint8List> vsk = createArrayBuf(nSigInputs.num, 32);
-      List<Uint8List> vpsk = createArrayBuf(nSigInputs.num, 32);
+      List<Uint8List> vpsk = createArrayBuf(nRows, 32);
 
       var vm = Uint8List(nCols.num * nRows * 33);
       List<Uint8List> vCommitments =

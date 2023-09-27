@@ -40,7 +40,7 @@ class CVeilStealthAddress {
     isValid = true;
   }
 
-  fromBuffer(Uint8List buffer) {
+  void fromBuffer(Uint8List buffer) {
     data = buffer;
     var nSize = buffer.length;
     if (nSize < MIN_STEALTH_RAW_SIZE) {
@@ -51,7 +51,6 @@ class CVeilStealthAddress {
     options = buffer[index++];
 
     scan_pubkey = buffer.sublist(index, index + EC_COMPRESSED_SIZE);
-
     index += EC_COMPRESSED_SIZE;
     var spend_pubkeys = buffer[index++];
 

@@ -7,7 +7,7 @@ class CFeeRate {
     //assert(nBytes_ <= uint64_t(std:: numeric_limits<int64_t>:: max()));
     int nSize = nBytes_; //int64_t(nBytes_);
 
-    int nFee = (nSatoshisPerK * nSize / 1000) as int;
+    int nFee = (nSatoshisPerK * nSize / 1000).round();
 
     if (nFee == 0 && nSize != 0) {
       if (nSatoshisPerK > 0) {

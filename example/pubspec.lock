@@ -113,6 +113,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.3"
+  dart_varuint_bitcoin:
+    dependency: transitive
+    description:
+      name: dart_varuint_bitcoin
+      sha256: "4f0ccc9733fb54148b9d3688eea822b7aaabf5cc00025998f8c09a1d45b31b4b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.3"
   ffi:
     dependency: transitive
     description:

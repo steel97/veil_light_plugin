@@ -9,8 +9,8 @@ class CTxDestination {
 
   CTxDestination(Uint8List? scriptPubKey, CVeilStealthAddress? stealthAddress,
       OutputTypes type) {
-    scriptPubKey = scriptPubKey;
-    stealthAddress = stealthAddress;
-    type = type;
+    this.scriptPubKey = scriptPubKey;
+    this.stealthAddress = stealthAddress;
+    this.type = type;
   }
 }

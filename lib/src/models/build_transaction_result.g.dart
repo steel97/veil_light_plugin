@@ -11,13 +11,13 @@ BuildTransactionResult _$BuildTransactionResultFromJson(
     BuildTransactionResult(
       json['fee'] as int,
       json['amountSent'] as int,
-      txid: json['txid'] as String?,
+      txdata: json['txdata'] as String?,
     );
 
 Map<String, dynamic> _$BuildTransactionResultToJson(
         BuildTransactionResult instance) =>
     <String, dynamic>{
       'fee': instance.fee,
-      'txid': instance.txid,
+      'txdata': instance.txdata,
       'amountSent': instance.amountSent,
     };

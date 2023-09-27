@@ -21,17 +21,23 @@ List<T> resize<T>(List<T> arr, int newSize, dynamic defaultValue) {
   ];
 }
 
-List<T> resizeNumArr<T>(List<T> arr, int newSize) {
-  for (var i = 0; i < newSize; i++) {
-    arr[i] = [] as T;
+List<T> resizeNumArr<T>(List<T> arr, int newSize, T fillval) {
+  if (arr.length > newSize) {
+    return arr.sublist(0, newSize);
   }
-  return arr;
+
+  List<T> nlist = [];
+  for (var i = arr.length; i < newSize; i++) {
+    //arr[i] = [] as T;
+    nlist.add(fillval);
+  }
+  return arr + nlist;
 }
 
 List<Uint8List> createArrayBuf(int arraySize, int fillSize) {
-  List<Uint8List> ab = [];
+  List<Uint8List> ab = List.empty(growable: true);
   for (var i = 0; i < arraySize; i++) {
-    ab[i] = Uint8List(fillSize);
+    ab.add(Uint8List(fillSize));
   }
   return ab;
 }

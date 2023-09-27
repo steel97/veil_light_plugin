@@ -57,7 +57,7 @@ class CMutableTransaction {
     return hashOutputs;
   }
 
-  hasWitness() {
+  bool hasWitness() {
     for (int i = 0; i < vin.length; i++) {
       if (!vin[i].scriptWitness.isNull()) {
         return true;
@@ -66,7 +66,7 @@ class CMutableTransaction {
     return false;
   }
 
-  encode() {
+  Uint8List encode() {
     //const buf = Buffer.alloc(81920);
     var writer = BufferWriter();
     writer.writeUInt8(nVersion & 0xFF);

@@ -8,8 +8,8 @@ const nBytesPerSigOp = DEFAULT_BYTES_PER_SIGOP;
 int getVirtualTransactionSizeRaw(int nWeight, int nSigOpCost) {
   // int64_t
   var compute = nSigOpCost * nBytesPerSigOp;
-  return ((nWeight > compute ? nWeight : compute) + WITNESS_SCALE_FACTOR - 1) /
-      WITNESS_SCALE_FACTOR as int;
+  return ((nWeight > compute ? nWeight : compute) + WITNESS_SCALE_FACTOR - 1) ~/
+      WITNESS_SCALE_FACTOR;
 }
 
 int getVirtualTransactionSize(CMutableTransaction tx, [int nSigOpCost = 0]) {

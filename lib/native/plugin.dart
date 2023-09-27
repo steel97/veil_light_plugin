@@ -31,7 +31,7 @@ final DynamicLibrary _dylib = () {
 var _lookup = _dylib.lookup;
 
 void copyArray(Uint8List original, Pointer<Uint8> ptr, {int index = 0}) {
-  for (int i = index; i < original.lengthInBytes; i++) {
+  for (int i = index; i < original.lengthInBytes + index; i++) {
     ptr[i] = original[i - index];
   }
 }

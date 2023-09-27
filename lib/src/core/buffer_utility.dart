@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'package:veil_light_plugin/src/core/bitcoin_dart_fix.dart';
 import 'package:veil_light_plugin/src/core/helpers.dart';
+import 'package:dart_varuint_bitcoin/dart_varuint_bitcoin.dart' as varuint;
 
 class BufferReader {
   final Uint8List buffer;
@@ -77,36 +78,39 @@ class BufferReader {
 }
 
 class BufferWriter {
-  final List<int> buffer = List.empty();
+  List<int> buffer = List.empty(growable: true);
   int offset = 0;
 
   void customVarInt(int data) {
     var res = putVarInt(data);
-    buffer.setAll(offset, res);
+    buffer.addAll(res);
     offset += res.lengthInBytes;
   }
 
   void writeVarInt(int data) {
-    var res = putVarInt(data);
-    buffer.setAll(offset, res);
-    offset += res.lengthInBytes;
+    var tempBuf = Uint8List(17);
+    var encRes = varuint.encode(data, tempBuf, 0);
+    //var res = putVarInt(data);
+    buffer.addAll(tempBuf.sublist(0, encRes.bytes));
+    offset += encRes.bytes;
   }
 
   void writeVarSlice(Uint8List slice) {
-    var res = putVarSlice(slice);
-    buffer.setAll(offset, res);
-    offset += res.lengthInBytes;
-    buffer.setAll(offset, slice);
+    //var res = putVarSlice(slice);
+    //buffer.addAll(res);
+    //offset += res.lengthInBytes;
+    writeVarInt(slice.lengthInBytes);
+    buffer.addAll(slice);
     offset += slice.lengthInBytes;
   }
 
   void writeSlice(Uint8List slice) {
-    buffer.setAll(offset, slice);
+    buffer.addAll(slice);
     offset += slice.lengthInBytes;
   }
 
   void writeUInt8(int value) {
-    var slice = Uint8List(4)..buffer.asByteData().setUint8(0, value);
+    var slice = Uint8List(1)..buffer.asByteData().setUint8(0, value);
     writeSlice(slice);
   }
 

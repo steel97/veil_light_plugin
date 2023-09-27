@@ -5,13 +5,13 @@ part 'build_transaction_result.g.dart';
 @JsonSerializable()
 class BuildTransactionResult {
   int fee;
-  String? txid;
+  String? txdata;
   int amountSent;
 
   BuildTransactionResult(
     this.fee,
     this.amountSent, {
-    this.txid,
+    this.txdata,
   });
 
   factory BuildTransactionResult.fromJson(Map<String, dynamic> json) =>
