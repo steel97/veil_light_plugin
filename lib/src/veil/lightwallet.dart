@@ -1,6 +1,7 @@
 // ignore_for_file: constant_identifier_names
 import 'dart:typed_data';
 import 'package:bip39/bip39.dart' as bip39;
+import 'package:bip39/src/wordlists/english.dart';
 import 'package:bip32/bip32.dart' as bip32;
 import 'package:veil_light_plugin/src/models/publish_transaction_result.dart';
 import 'package:veil_light_plugin/src/models/rpc/lightwallet/get_anon_outputs_response.dart';
@@ -9,6 +10,7 @@ import 'package:veil_light_plugin/src/models/rpc/wallet/send_raw_transaction_res
 import 'package:veil_light_plugin/src/veil/chainparams.dart';
 import 'package:veil_light_plugin/src/veil/lightwallet_transaction_builder.dart';
 import 'package:veil_light_plugin/src/veil/rpc_requester.dart';
+import 'package:veil_light_plugin/src/veil/tx/clight_wallet_anon_output_data.dart';
 
 const BIP44_PURPOSE = 0x8000002C;
 
@@ -21,12 +23,16 @@ class Lightwallet {
     return Lightwallet(chainParams, mnemonicSeed);
   }
 
-  static generateMnemonic({int size = 256}) {
+  static List<String> generateMnemonic({int size = 256}) {
     return bip39.generateMnemonic(strength: size).split(" ");
   }
 
-  static verifyMnemonic(String mnemonic /*, List<String>? wordlist*/) {
+  static bool verifyMnemonic(String mnemonic /*, List<String>? wordlist*/) {
     return bip39.validateMnemonic(mnemonic);
+  }
+
+  static bool verifyWord(String word) {
+    return WORDLIST.contains(word);
   }
 
   final Chainparams chainParams;
@@ -48,7 +54,8 @@ class Lightwallet {
     return _keyCoin!;
   }
 
-  static Future<dynamic> getAnonOutputs(int vtxoutCount,
+  static Future<List<CLightWalletAnonOutputData>> getAnonOutputs(
+      int vtxoutCount,
       {int ringSize = 5}) async {
     var responseRes = await RpcRequester.send(RpcRequest(
         jsonrpc: "1.0",
