@@ -4,7 +4,7 @@ import 'package:pointycastle/digests/sha256.dart';
 import 'package:veil_light_plugin/native/plugin.dart' as ecc;
 
 // ignore: constant_identifier_names
-const EC_COMPRESSED_SIZE = 33;
+const _EC_COMPRESSED_SIZE = 33;
 
 class StealthSecretResult {
   final Uint8List sShared;
@@ -15,7 +15,7 @@ class StealthSecretResult {
 
 class Stealth {
   static Uint8List setPublicKey(Uint8List pk) {
-    var buf = Uint8List(EC_COMPRESSED_SIZE);
+    var buf = Uint8List(_EC_COMPRESSED_SIZE);
     buf.setAll(0, pk);
     return buf;
   }
@@ -24,8 +24,8 @@ class Stealth {
     Uint8List? sShared;
     Uint8List? pkExtracted;
 
-    if (pubkey.length != EC_COMPRESSED_SIZE ||
-        pkSpend.length != EC_COMPRESSED_SIZE) {
+    if (pubkey.length != _EC_COMPRESSED_SIZE ||
+        pkSpend.length != _EC_COMPRESSED_SIZE) {
       throw Exception("sanity checks failed");
     }
 
