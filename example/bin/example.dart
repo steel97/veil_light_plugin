@@ -19,6 +19,7 @@ Future<void> main(List<String> arguments) async {
   var account = LightwalletAccount(wallet);
   var mainAddress = account.getAddress(AccountType.STEALTH);
 
+  print(mainAddress.getStringAddress());
   print('Your balance ${await account.getBalanceFormatted([
         mainAddress
       ], List.empty())}');

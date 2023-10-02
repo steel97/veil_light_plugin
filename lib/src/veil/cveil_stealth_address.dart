@@ -3,6 +3,7 @@
 import "dart:typed_data";
 
 import "package:veil_light_plugin/src/veil/chainparams.dart";
+import 'package:veil_light_plugin/src/core/bitcoin_dart_fix.dart';
 import 'package:bech32/bech32.dart';
 
 const MAX_STEALTH_NARRATION_SIZE = 48;
@@ -118,13 +119,10 @@ class CVeilStealthAddress {
       index += 4;
     }
 
-    var data = bech32.encode(
-        Bech32(chain.bech32Prefixes.STEALTH_ADDRESS,
-            buffer_cache.sublist(0, index)),
-        128);
+    var words = convertBits(buffer_cache.sublist(0, index), 8, 5, true);
+    var data =
+        bech32.encode(Bech32(chain.bech32Prefixes.STEALTH_ADDRESS, words), 128);
 
-    //var words = bech32.toWords(buffer.subarray(0, index));
-    //var data = bech32.encode(chain.bech32Prefixes.STEALTH_ADDRESS, words, 128);
     return data;
   }
 }
