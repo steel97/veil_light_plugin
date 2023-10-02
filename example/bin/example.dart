@@ -43,6 +43,6 @@ Future<void> main(List<String> arguments) async {
             "sv1qqp3hydaxd9lemnsmsta52tcaj66v2rt2v6kresn302amwdftwgp3acpqg2dsprdfen7zk72lsx96k2aujgmv7z9j3nusv5a5zf95de8qv6s6qqq276sh6")!,
         targetAmountToSend)
   ], selectedUtxos, true);
-  var res = await Lightwallet.publishTransaction(tx.txdata!);
-  print(res.txid);
+  //var res = await Lightwallet.publishTransaction(tx.txdata!);
+  //print(res.txid);
 }
