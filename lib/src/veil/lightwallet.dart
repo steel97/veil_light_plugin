@@ -35,6 +35,10 @@ class Lightwallet {
     return WORDLIST.contains(word);
   }
 
+  static List<String> getValidWords() {
+    return WORDLIST;
+  }
+
   final Chainparams chainParams;
   bip32.BIP32? _keyMaster;
   bip32.BIP32? _keyPurpose;
