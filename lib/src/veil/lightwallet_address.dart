@@ -23,6 +23,7 @@ import 'package:veil_light_plugin/src/veil/tx/cwatch_only_tx_with_index.dart';
 class LightwalletAddress {
   final LightwalletAccount _lwAccount;
   bip32.BIP32? _addressKey;
+  AccountType _accountType = AccountType.DEFAULT;
   CVeilStealthAddress? _stealth;
   List<CWatchOnlyTxWithIndex>? _transactionsCache;
   List<KeyImageResult>? _keyImageCache;
@@ -30,8 +31,12 @@ class LightwalletAddress {
   String _syncStatus =
       "unknown"; // TO-DO "failed" | "synced" | "scanning" = "scanning";
 
-  LightwalletAddress(this._lwAccount, bip32.BIP32 account, int index) {
+  AccountType get getAccountType => _accountType;
+
+  LightwalletAddress(this._lwAccount, bip32.BIP32 account,
+      AccountType accountType, int index) {
     _addressKey = account.deriveHardened(index);
+    _accountType = accountType;
     _stealth = CVeilStealthAddress();
     _stealth!.fromData(
         getScanKey()!.privateKey!,
@@ -72,7 +77,7 @@ class LightwalletAddress {
     return address;
   }
 
-  Future fetchTxes() async {
+  Future<List<CWatchOnlyTxWithIndex>?> fetchTxes() async {
     if (!_syncWithNodeCalled || _syncStatus != "synced") {
       await syncWithNode();
     }
@@ -90,7 +95,7 @@ class LightwalletAddress {
     for (var tx in response.result?.anon ?? []) {
       var txObj = CWatchOnlyTxWithIndex();
       txObj.deserialize(Uint8List.fromList(hex.decode(tx.raw)), tx.raw);
-      txObj.getRingCtOut()?.decodeTx(spendKey!, scanKey!);
+      txObj.getRingCtOut()?.decodeTx(spendKey!, scanKey);
       txes.add(txObj);
     }
 
@@ -130,14 +135,12 @@ class LightwalletAddress {
     }
 
     List<CWatchOnlyTxWithIndex> res = [];
-    var i = 0;
     for (var tx in _transactionsCache ?? []) {
       var txInfo = _keyImageCache?.firstWhere((a) => a.txid == tx.getId());
       if (!(txInfo?.spent ?? true) &&
           (!(txInfo?.spentinmempool ?? false) || ignoreMemPoolSpend)) {
         res.add(tx);
       }
-      i++;
     }
 
     return res;
@@ -150,13 +153,11 @@ class LightwalletAddress {
     }
 
     List<CWatchOnlyTxWithIndex> res = [];
-    var i = 0;
     for (var tx in _transactionsCache ?? []) {
       var txInfo = _keyImageCache?.firstWhere((a) => a.txid == tx.getId());
       if ((txInfo?.spentinmempool ?? false)) {
         res.add(tx);
       }
-      i++;
     }
 
     return res;

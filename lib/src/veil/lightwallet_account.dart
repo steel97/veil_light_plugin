@@ -37,7 +37,8 @@ class LightwalletAccount {
   }
 
   LightwalletAddress getAddress(AccountType fromAccount, {int index = 1}) {
-    var address = LightwalletAddress(this, getAccount(fromAccount)!, index);
+    var address =
+        LightwalletAddress(this, getAccount(fromAccount)!, fromAccount, index);
     return address;
   }
 
