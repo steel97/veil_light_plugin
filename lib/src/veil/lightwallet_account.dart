@@ -68,7 +68,7 @@ class LightwalletAccount {
     return res.toStringAsFixed(_wallet.getChainParams().COIN_DIGITS);
   }
 
-  formatAmount(double amount) {
+  String formatAmount(double amount) {
     return amount.toStringAsFixed(_wallet.getChainParams().COIN_DIGITS);
   }
 
