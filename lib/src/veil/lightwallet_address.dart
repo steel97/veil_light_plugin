@@ -31,7 +31,7 @@ class LightwalletAddress {
   String _syncStatus =
       "unknown"; // TO-DO "failed" | "synced" | "scanning" = "scanning";
 
-  AccountType get getAccountType => _accountType;
+  AccountType getAccountType() => _accountType;
 
   LightwalletAddress(this._lwAccount, bip32.BIP32 account,
       AccountType accountType, int index) {
