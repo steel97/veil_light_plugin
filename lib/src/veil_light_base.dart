@@ -1,6 +1,7 @@
-// TODO: Put public facing types in this file.
+import 'package:veil_light_plugin/native/plugin.dart';
 
-/// Checks if you are awesome. Spoiler: you are.
-class Awesome {
-  bool get isAwesome => true;
+class VeilLightBase {
+  void initialize() {
+    initializeContext();
+  }
 }
