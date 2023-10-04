@@ -1,6 +1,6 @@
 #![deny(clippy::all)]
 #![deny(clippy::pedantic)]
-#![no_std]
+//#![no_std]
 
 extern crate byteorder;
 
@@ -924,6 +924,7 @@ pub extern "C" fn rangeproof_sign(
     value: u64,
     msg_len: usize,
 ) -> i32 {
+    println!("calling rangeproof sign");
     unsafe {
         /*
         proof: *mut c_uchar,
