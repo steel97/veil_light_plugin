@@ -1,18 +1,36 @@
 # veil_light_plugin
 
-Port of veil-secp2561k to dart/flutter
+Port of `veil-secp256k1` to `dart/flutter`, based on fork of WASM module [tiny-secp256k1](https://github.com/steel97/tiny-secp256k1) originally made by bitcoinjs contributors and released under MIT license.
+
+This library rely on fork version of [rust-secp256k1](https://github.com/steel97/rust-secp256k1/tree/standalone)
 
 ## Getting Started
+### Requirements:
+- [dart/flutter](https://docs.flutter.dev/get-started/install)
+- [rust + cargo](https://www.rust-lang.org/tools/install)
+- [CMake](https://cmake.org/download/)
 
-This project is a starting point for a Flutter
-[FFI plugin](https://docs.flutter.dev/development/platform-integration/c-interop),
-a specialized package that includes native code directly invoked with Dart FFI.
+#### Windows:
+- visual studio 2022 with c++ support, for android download
+
+#### Android:
+- [JDK 21](https://jdk.java.net/21/) (release builds are made with openjdk 21 under windows platform)
+- [SDK](https://developer.android.com/tools/releases/platform-tools)
+- [NDK](https://developer.android.com/ndk)
+- or install both sdk and ndk via [Android studio](https://developer.android.com/studio)
+
+This project uses [CargoKit](https://github.com/irondash/cargokit), see how to use it [here](https://matejknopp.com/post/flutter_plugin_in_rust_with_no_prebuilt_binaries/)
+
+```
+# run this to download required dependencies
+flutter pub get
+```
 
 ## Project structure
 
 This template uses the following structure:
 
-* `src`: Contains the native source code, and a CmakeFile.txt file for building
+* `rust`: Contains the native source code, and a CmakeFile.txt file for building
   that source code into a dynamic library.
 
 * `lib`: Contains the Dart code that defines the API of the plugin, and which
@@ -35,27 +53,6 @@ The `pubspec.yaml` specifies FFI plugins as follows:
 This configuration invokes the native build for the various target platforms
 and bundles the binaries in Flutter applications using these FFI plugins.
 
-This can be combined with dartPluginClass, such as when FFI is used for the
-implementation of one platform in a federated plugin:
-
-```yaml
-  plugin:
-    implements: some_other_plugin
-    platforms:
-      some_platform:
-        dartPluginClass: SomeClass
-        ffiPlugin: true
-```
-
-A plugin can have both FFI and method channels:
-
-```yaml
-  plugin:
-    platforms:
-      some_platform:
-        pluginClass: SomeName
-        ffiPlugin: true
-```
 
 The native build systems that are invoked by FFI (and method channel) plugins are:
 
@@ -68,21 +65,6 @@ The native build systems that are invoked by FFI (and method channel) plugins ar
   * See the documentation in linux/CMakeLists.txt.
   * See the documentation in windows/CMakeLists.txt.
 
-## Binding to native code
-
-To use the native code, bindings in Dart are needed.
-To avoid writing these by hand, they are generated from the header file
-(`src/veil_light_plugin.h`) by `package:ffigen`.
-Regenerate the bindings by running `flutter pub run ffigen --config ffigen.yaml`.
-
-## Invoking native code
-
-Very short-running native functions can be directly invoked from any isolate.
-For example, see `sum` in `lib/veil_light_plugin.dart`.
-
-Longer-running functions should be invoked on a helper isolate to avoid
-dropping frames in Flutter applications.
-For example, see `sumAsync` in `lib/veil_light_plugin.dart`.
 
 ## Flutter help
 
