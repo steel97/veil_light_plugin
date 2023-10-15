@@ -1,9 +1,7 @@
-import 'dart:async';
+// ignore_for_file: constant_identifier_names, non_constant_identifier_names
 import 'dart:ffi';
 import 'dart:ffi' as ffi;
-import 'package:ffi/ffi.dart';
 import 'dart:io';
-import 'dart:isolate';
 import 'dart:typed_data';
 
 const String _libName = 'veil_light_plugin';
@@ -362,9 +360,9 @@ class PedersenCommitResult {
 }
 
 PedersenCommitResult? pedersenCommit(
-    Uint8List commitment, Uint8List blind_output, BigInt value) {
+    Uint8List commitment, Uint8List blindOutput, BigInt value) {
   try {
-    copyArray(blind_output, blindOutputPtr);
+    copyArray(blindOutput, blindOutputPtr);
     copyArray(commitment, commitPtr);
 
     var res = _pedersenCommit(value.toInt());
@@ -413,15 +411,15 @@ class RangeProofSignResult {
 RangeProofSignResult? rangeproofSign(
     Uint8List proof,
     int plen,
-    BigInt min_value,
+    BigInt minValue,
     Uint8List commitment,
     Uint8List blind,
     Uint8List nonce,
     int exp,
-    int min_bits,
+    int minBits,
     BigInt value,
     Uint8List message,
-    int msg_len) {
+    int msgLen) {
   try {
     copyArray(proof, proofPtr);
     copyArray(commitment, commitPtr);
@@ -430,7 +428,7 @@ RangeProofSignResult? rangeproofSign(
     copyArray(message, messageOutputPtr);
 
     var res = _rangeproofSign(
-        plen, min_value.toInt(), exp, min_bits, value.toInt(), msg_len);
+        plen, minValue.toInt(), exp, minBits, value.toInt(), msgLen);
 
     if (res == 1) {
       var dv = getArray(privateKeyInputPtr, 0, 4).buffer.asByteData();
@@ -441,7 +439,7 @@ RangeProofSignResult? rangeproofSign(
           commit: getArray(commitPtr, 0, 33),
           blind_output: getArray(blindOutputPtr, 0, 32),
           nonce_output: getArray(nonceOutputPtr, 0, 32),
-          message_output: getArray(messageOutputPtr, 0, msg_len));
+          message_output: getArray(messageOutputPtr, 0, msgLen));
       return out;
     } else {
       return null;
@@ -501,8 +499,8 @@ class PrepareMlsagResult {
 }
 
 PrepareMlsagResult? prepareMlsag(
-    Uint8List m_input,
-    Uint8List sk_input,
+    Uint8List mInput,
+    Uint8List skInput,
     int nOuts,
     int nBlinded,
     int vpInCommitsLen,
@@ -513,8 +511,8 @@ PrepareMlsagResult? prepareMlsag(
     List<Uint8List> vpOutCommits,
     List<Uint8List> vpBlinds) {
   try {
-    copyArray(m_input, mInputPtr);
-    copyArray(sk_input, skInputPtr);
+    copyArray(mInput, mInputPtr);
+    copyArray(skInput, skInputPtr);
 
     setZeros(pcmInPtr, pcmInSize);
     int index = 0;
@@ -543,8 +541,8 @@ PrepareMlsagResult? prepareMlsag(
 
     if (res == 0) {
       return PrepareMlsagResult(
-          M: getArray(mInputPtr, 0, m_input.length),
-          SK: getArray(skInputPtr, 0, sk_input.length));
+          M: getArray(mInputPtr, 0, mInput.length),
+          SK: getArray(skInputPtr, 0, skInput.length));
     } else {
       return null;
     }
@@ -617,7 +615,7 @@ GenerateMlsagResult? generateMlsag(
     int nCols,
     int nRows,
     int indexRef,
-    int sk_size,
+    int skSize,
     List<Uint8List> sks,
     Uint8List pk) {
   try {
@@ -636,7 +634,7 @@ GenerateMlsagResult? generateMlsag(
     }
 
     //blinds_size = n?
-    var res = _generateMlsag(nCols, nRows, indexRef, sk_size);
+    var res = _generateMlsag(nCols, nRows, indexRef, skSize);
     if (res == 0) {
       return GenerateMlsagResult(
           KI: getArray(kiBigOutputPtr, 0, ki.length),

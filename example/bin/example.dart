@@ -1,6 +1,5 @@
-// ignore_for_file: empty_catches, non_constant_identifier_names, constant_identifier_names, unused_local_variable
+// ignore_for_file: empty_catches, non_constant_identifier_names, constant_identifier_names, unused_local_variable, prefer_single_quotes, unnecessary_import
 import 'dart:io';
-
 import 'package:veil_light_plugin/src/veil/lightwallet.dart';
 import 'package:veil_light_plugin/src/veil/lightwallet_account.dart';
 import 'package:veil_light_plugin/src/veil/cveil_address.dart';
