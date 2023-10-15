@@ -1,5 +1,5 @@
 // ignore_for_file: constant_identifier_names
-import "package:veil_light_plugin/src/veil/core/cmutable_transaction.dart";
+import 'package:veil_light_plugin/src/veil/core/cmutable_transaction.dart';
 
 const WITNESS_SCALE_FACTOR = 4;
 const DEFAULT_BYTES_PER_SIGOP = 20;

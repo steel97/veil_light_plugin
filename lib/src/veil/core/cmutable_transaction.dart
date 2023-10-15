@@ -1,11 +1,11 @@
-import "dart:typed_data";
-import "package:convert/convert.dart";
-import "package:pointycastle/digests/sha256.dart";
-import "package:veil_light_plugin/src/core/crypto.dart";
-import "package:veil_light_plugin/src/core/buffer_utility.dart";
-import "package:veil_light_plugin/src/veil/core/ctx_in.dart";
-import "package:veil_light_plugin/src/veil/core/ctx_out_base.dart";
-import "package:veil_light_plugin/src/veil/serialization.dart";
+import 'dart:typed_data';
+import 'package:convert/convert.dart';
+import 'package:pointycastle/digests/sha256.dart';
+import 'package:veil_light_plugin/src/core/crypto.dart';
+import 'package:veil_light_plugin/src/core/buffer_utility.dart';
+import 'package:veil_light_plugin/src/veil/core/ctx_in.dart';
+import 'package:veil_light_plugin/src/veil/core/ctx_out_base.dart';
+import 'package:veil_light_plugin/src/veil/serialization.dart';
 
 class CMutableTransaction {
   List<CTxIn> vin = [];
@@ -28,7 +28,7 @@ class CMutableTransaction {
   getOutputsHash() {
     // uint256 return
     var pblank = Uint8List.fromList(hex.decode(
-        "0000000000000000000000000000000000000000000000000000000000000000"));
+        '0000000000000000000000000000000000000000000000000000000000000000'));
     var hashOutputs = Uint8List(32);
     var hashOutputsSet = false;
     //static const unsigned char pblank[1] = {};

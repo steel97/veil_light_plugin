@@ -1,7 +1,5 @@
-// ignore_for_file: no_leading_underscores_for_local_identifiers
-
+// ignore_for_file: no_leading_underscores_for_local_identifiers, empty_catches
 import 'dart:typed_data';
-
 import 'package:flutter_bitcoin/flutter_bitcoin.dart';
 import 'package:flutter_bitcoin/src/utils/script.dart' as bscript;
 import 'package:flutter_bitcoin/src/utils/constants/op.dart';
@@ -52,7 +50,7 @@ class CVeilAddress {
     } else {
       try {
         //decodeBech32 = segwit.decode(address);
-        decodeBech32 = getSegWitFromAddress(nw!.bech32 ?? "bv", address);
+        decodeBech32 = getSegWitFromAddress(nw!.bech32 ?? 'bv', address);
       } catch (err) {}
       if (decodeBech32 != null) {
         if (network.bech32 != decodeBech32.hrp) {
@@ -100,7 +98,7 @@ class CVeilAddress {
             maxLen: 128, useValidations: false);*/ // bech32.decode(address, 128);
         var data = bech32.decode(address, 128);
         if (data.hrp != chainParams.bech32Prefixes.STEALTH_ADDRESS) {
-          throw Exception("Invalid address");
+          throw Exception('Invalid address');
         }
         var res = convertBits(data.data, 5, 8, false);
 

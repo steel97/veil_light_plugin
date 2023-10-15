@@ -17,14 +17,14 @@ const BIP44_PURPOSE = 0x8000002C;
 class Lightwallet {
   static Lightwallet fromMnemonic(
       Chainparams chainParams, List<String> mnemonic,
-      {String password = ""}) {
+      {String password = ''}) {
     var mnemonicSeed =
-        bip39.mnemonicToSeed(mnemonic.join(" "), passphrase: password);
+        bip39.mnemonicToSeed(mnemonic.join(' '), passphrase: password);
     return Lightwallet(chainParams, mnemonicSeed);
   }
 
   static List<String> generateMnemonic({int size = 256}) {
-    return bip39.generateMnemonic(strength: size).split(" ");
+    return bip39.generateMnemonic(strength: size).split(' ');
   }
 
   static bool verifyMnemonic(String mnemonic /*, List<String>? wordlist*/) {
@@ -62,8 +62,8 @@ class Lightwallet {
       int vtxoutCount,
       {int ringSize = 5}) async {
     var responseRes = await RpcRequester.send(RpcRequest(
-        jsonrpc: "1.0",
-        method: "getanonoutputs",
+        jsonrpc: '1.0',
+        method: 'getanonoutputs',
         params: [vtxoutCount, ringSize] // inputSize, ringSize
         ));
     var response = GetAnonOutputsResponse.fromJson(responseRes);
@@ -74,7 +74,7 @@ class Lightwallet {
   static Future<PublishTransactionResult> publishTransaction(
       String rawTx) async {
     var responseRes = await RpcRequester.send(RpcRequest(
-        jsonrpc: "1.0", method: "sendrawtransaction", params: [rawTx]));
+        jsonrpc: '1.0', method: 'sendrawtransaction', params: [rawTx]));
     var response = SendRawTransactionResponse.fromJson(responseRes);
 
     if (response.error != null) {

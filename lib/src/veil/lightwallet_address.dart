@@ -29,7 +29,7 @@ class LightwalletAddress {
   List<KeyImageResult>? _keyImageCache;
   bool _syncWithNodeCalled = false;
   String _syncStatus =
-      "unknown"; // TO-DO "failed" | "synced" | "scanning" = "scanning";
+      'unknown'; // TO-DO "failed" | "synced" | "scanning" = "scanning";
 
   AccountType getAccountType() => _accountType;
 
@@ -51,23 +51,23 @@ class LightwalletAddress {
     var spendKeyPub = hex.encode(getSpendKey()!.publicKey);
 
     var importResponseRes = await RpcRequester.send(RpcRequest(
-        jsonrpc: "1.0",
-        method: "importlightwalletaddress",
+        jsonrpc: '1.0',
+        method: 'importlightwalletaddress',
         params: [scanKeyPriv, spendKeyPub, fromBlock]));
     var importResponse =
         ImportLightwalletAddressResponse.fromJson(importResponseRes);
-    var address = "";
+    var address = '';
 
     if (importResponse.error != null) {
       var importStatusRes = await RpcRequester.send(RpcRequest(
-          jsonrpc: "1.0",
-          method: "getwatchonlystatus",
+          jsonrpc: '1.0',
+          method: 'getwatchonlystatus',
           params: [scanKeyPriv, spendKeyPub]));
       var importStatus = GetWatchOnlyStatusResponse.fromJson(importStatusRes);
 
-      _syncStatus = importStatus.result?.status ?? "unknown";
+      _syncStatus = importStatus.result?.status ?? 'unknown';
 
-      address = importStatus.result?.stealth_address ?? "";
+      address = importStatus.result?.stealth_address ?? '';
     } else {
       address = importResponse.result!.stealth_address_bech!;
     }
@@ -78,7 +78,7 @@ class LightwalletAddress {
   }
 
   Future<List<CWatchOnlyTxWithIndex>?> fetchTxes() async {
-    if (!_syncWithNodeCalled || _syncStatus != "synced") {
+    if (!_syncWithNodeCalled || _syncStatus != 'synced') {
       await syncWithNode();
     }
 
@@ -86,8 +86,8 @@ class LightwalletAddress {
     var spendKey = getSpendKey();
 
     var responseRes = await RpcRequester.send(RpcRequest(
-        jsonrpc: "1.0",
-        method: "getwatchonlytxes",
+        jsonrpc: '1.0',
+        method: 'getwatchonlytxes',
         params: [hex.encode(scanKey!.privateKey!)]));
     var response = GetWatchOnlyTxesResponse.fromJson(responseRes);
 
@@ -103,12 +103,12 @@ class LightwalletAddress {
     List<String> keyimages = [];
     for (var tx in txes) {
       var kib = tx.getKeyImage();
-      var ki = kib == null ? "" : hex.encode(kib);
+      var ki = kib == null ? '' : hex.encode(kib);
       keyimages.add(ki);
     }
     // get keyimages info
     var kiResponseRes = await RpcRequester.send(RpcRequest(
-        jsonrpc: "1.0", method: "checkkeyimages", params: [keyimages]));
+        jsonrpc: '1.0', method: 'checkkeyimages', params: [keyimages]));
     var kiResponse = CheckKeyImagesResponse.fromJson(kiResponseRes);
     if (kiResponse.error != null) return null;
 
@@ -174,7 +174,7 @@ class LightwalletAddress {
     // compute balance
     double amount = 0;
     for (var utx in res) {
-      if (substractTxes?.contains(utx.getId() ?? "") ?? false) continue;
+      if (substractTxes?.contains(utx.getId() ?? '') ?? false) continue;
       amount += utx.getAmount(_lwAccount.getWallet().getChainParams());
     }
     return amount;
@@ -227,7 +227,7 @@ class LightwalletAddress {
   }
 
   String getStringAddress() {
-    return _stealth?.toBech32(_lwAccount.getWallet().getChainParams()) ?? "";
+    return _stealth?.toBech32(_lwAccount.getWallet().getChainParams()) ?? '';
   }
 
   String getSyncStatus() {

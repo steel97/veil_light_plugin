@@ -1,5 +1,5 @@
-import "dart:typed_data";
-import "package:veil_light_plugin/src/core/buffer_utility.dart";
+import 'dart:typed_data';
+import 'package:veil_light_plugin/src/core/buffer_utility.dart';
 
 class CScriptWitness {
   // Note that this encodes the data elements being pushed, rather than

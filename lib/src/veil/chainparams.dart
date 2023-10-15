@@ -1,6 +1,6 @@
 // ignore_for_file: non_constant_identifier_names
-import "package:flutter_bitcoin/flutter_bitcoin.dart";
-import "package:veil_light_plugin/src/veil/core/cfee_rate.dart";
+import 'package:flutter_bitcoin/flutter_bitcoin.dart';
+import 'package:veil_light_plugin/src/veil/core/cfee_rate.dart';
 
 class Base58Prefixes {
   final int PUBKEY_ADDRESS;
@@ -57,7 +57,7 @@ class Chainparams {
 }
 
 var MAINNET_DEFAULT_MIN_RELAY_TX_FEE = 1000;
-var mainNetBech32 = Bech32Prefixes(STEALTH_ADDRESS: "sv", BASE_ADDRESS: "bv");
+var mainNetBech32 = Bech32Prefixes(STEALTH_ADDRESS: 'sv', BASE_ADDRESS: 'bv');
 var mainNetBase58 = Base58Prefixes(
     PUBKEY_ADDRESS: 0x46,
     SCRIPT_ADDRESS: 0x05,
@@ -80,7 +80,7 @@ var mainNetParams = Chainparams(
     DEFAULT_MIN_RELAY_TX_FEE: MAINNET_DEFAULT_MIN_RELAY_TX_FEE,
     minRelayTxFee: CFeeRate(nSatoshisPerK: MAINNET_DEFAULT_MIN_RELAY_TX_FEE),
     veilNetwork: NetworkType(
-        messagePrefix: "\x19Veil Signed Message:\n",
+        messagePrefix: '\x19Veil Signed Message:\n',
         bip32: Bip32Type(
             public: mainNetBase58.EXT_PUBLIC_KEY,
             private: mainNetBase58.EXT_SECRET_KEY),

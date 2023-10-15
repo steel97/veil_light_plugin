@@ -1,6 +1,7 @@
-import "package:json_annotation/json_annotation.dart";
-import "package:veil_light_plugin/src/models/rpc/json_rpc_error.dart";
-import "package:veil_light_plugin/src/models/rpc/rpc_response.dart";
+// ignore_for_file: non_constant_identifier_names
+import 'package:json_annotation/json_annotation.dart';
+import 'package:veil_light_plugin/src/models/rpc/json_rpc_error.dart';
+import 'package:veil_light_plugin/src/models/rpc/rpc_response.dart';
 
 part 'get_watch_only_status_response.g.dart';
 

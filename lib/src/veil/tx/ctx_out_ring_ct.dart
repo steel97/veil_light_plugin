@@ -1,11 +1,11 @@
 // ignore_for_file: depend_on_referenced_packages
 
-import "dart:typed_data";
+import 'dart:typed_data';
 
-import "package:pointycastle/digests/sha256.dart";
-import "package:veil_light_plugin/src/core/buffer_utility.dart";
+import 'package:pointycastle/digests/sha256.dart';
+import 'package:veil_light_plugin/src/core/buffer_utility.dart';
 import 'package:bip32/bip32.dart' as bip32;
-import "package:veil_light_plugin/src/veil/stealth.dart";
+import 'package:veil_light_plugin/src/veil/stealth.dart';
 import 'package:veil_light_plugin/native/plugin.dart' as ecc;
 
 class CTxOutRingCT {

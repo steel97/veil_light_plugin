@@ -26,7 +26,7 @@ class Stealth {
 
     if (pubkey.length != _EC_COMPRESSED_SIZE ||
         pkSpend.length != _EC_COMPRESSED_SIZE) {
-      throw Exception("sanity checks failed");
+      throw Exception('sanity checks failed');
     }
 
     var Q = pubkey;

@@ -1,8 +1,8 @@
-import "dart:typed_data";
+import 'dart:typed_data';
 
-import "package:veil_light_plugin/src/core/buffer_utility.dart";
-import "package:veil_light_plugin/src/veil/core/ctx_out_base.dart";
-import "package:veil_light_plugin/src/veil/core/output_types.dart";
+import 'package:veil_light_plugin/src/core/buffer_utility.dart';
+import 'package:veil_light_plugin/src/veil/core/ctx_out_base.dart';
+import 'package:veil_light_plugin/src/veil/core/output_types.dart';
 
 class CTxOutStandard extends CTxOutBase {
   final int nValue; //int64

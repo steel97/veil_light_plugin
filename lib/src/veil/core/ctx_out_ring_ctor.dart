@@ -1,7 +1,7 @@
-import "dart:typed_data";
-import "package:veil_light_plugin/src/core/buffer_utility.dart";
-import "package:veil_light_plugin/src/veil/core/ctx_out_ct.dart";
-import "package:veil_light_plugin/src/veil/core/output_types.dart";
+import 'dart:typed_data';
+import 'package:veil_light_plugin/src/core/buffer_utility.dart';
+import 'package:veil_light_plugin/src/veil/core/ctx_out_ct.dart';
+import 'package:veil_light_plugin/src/veil/core/output_types.dart';
 
 class CTxOutRingCTOr extends CTxOutCT {
   Uint8List? pk;

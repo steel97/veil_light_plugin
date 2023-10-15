@@ -1,8 +1,6 @@
 // ignore_for_file: constant_identifier_names, non_constant_identifier_names, camel_case_types
-
-import "dart:typed_data";
-
-import "package:veil_light_plugin/src/veil/chainparams.dart";
+import 'dart:typed_data';
+import 'package:veil_light_plugin/src/veil/chainparams.dart';
 import 'package:veil_light_plugin/src/core/bitcoin_dart_fix.dart';
 import 'package:bech32/bech32.dart';
 

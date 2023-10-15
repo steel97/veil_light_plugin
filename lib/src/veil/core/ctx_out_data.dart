@@ -1,7 +1,7 @@
-import "dart:typed_data";
-import "package:veil_light_plugin/src/core/buffer_utility.dart";
-import "package:veil_light_plugin/src/veil/core/ctx_out_base.dart";
-import "package:veil_light_plugin/src/veil/core/output_types.dart";
+import 'dart:typed_data';
+import 'package:veil_light_plugin/src/core/buffer_utility.dart';
+import 'package:veil_light_plugin/src/veil/core/ctx_out_base.dart';
+import 'package:veil_light_plugin/src/veil/core/output_types.dart';
 
 class CTxOutData extends CTxOutBase {
   Uint8List vData;

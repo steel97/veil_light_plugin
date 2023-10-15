@@ -1,9 +1,9 @@
 // ignore_for_file: constant_identifier_names
-import "dart:typed_data";
-import "package:convert/convert.dart";
-import "package:veil_light_plugin/src/core/buffer_utility.dart";
-import "package:veil_light_plugin/src/veil/chainparams.dart";
-import "package:veil_light_plugin/src/veil/tx/ctx_out_ring_ct.dart";
+import 'dart:typed_data';
+import 'package:convert/convert.dart';
+import 'package:veil_light_plugin/src/core/buffer_utility.dart';
+import 'package:veil_light_plugin/src/veil/chainparams.dart';
+import 'package:veil_light_plugin/src/veil/tx/ctx_out_ring_ct.dart';
 
 enum WatchOnlyTxType {
   NOTSET(-1),

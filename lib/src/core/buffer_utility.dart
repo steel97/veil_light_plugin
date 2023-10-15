@@ -71,7 +71,7 @@ class BufferReader {
       var hi = bytes.getUint32(offset, Endian.little);
       offset += 4;
       var number = hi * 0x0100000000 + lo;
-      if (!isUint(number, 53)) throw ArgumentError("Expected UInt53");
+      if (!isUint(number, 53)) throw ArgumentError('Expected UInt53');
       return number;
     }
   }

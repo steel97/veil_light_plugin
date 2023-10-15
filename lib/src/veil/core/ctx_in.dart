@@ -1,11 +1,11 @@
 // ignore_for_file: non_constant_identifier_names
 
-import "dart:typed_data";
+import 'dart:typed_data';
 
-import "package:veil_light_plugin/src/core/buffer_utility.dart";
-import "package:veil_light_plugin/src/core/dart_ref.dart";
-import "package:veil_light_plugin/src/veil/core/cscript_witness.dart";
-import "package:veil_light_plugin/src/veil/tx/cout_point.dart";
+import 'package:veil_light_plugin/src/core/buffer_utility.dart';
+import 'package:veil_light_plugin/src/core/dart_ref.dart';
+import 'package:veil_light_plugin/src/veil/core/cscript_witness.dart';
+import 'package:veil_light_plugin/src/veil/tx/cout_point.dart';
 
 class CTxIn {
   static int SEQUENCE_FINAL = 0xffffffff; // uint32_t
