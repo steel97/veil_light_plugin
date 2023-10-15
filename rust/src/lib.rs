@@ -764,7 +764,7 @@ pub extern "C" fn verify_schnorr() -> i32 {
 // secp256k1_get_keyimage
 #[no_mangle]
 #[export_name = "getKeyImage"]
-pub extern "C" fn get_keyimage(outputlen: usize, inputpkLen: usize, inputskLen: usize) -> i32 {
+pub extern "C" fn get_keyimage(_outputlen: usize, _inputpk_len: usize, _inputsk_len: usize) -> i32 {
     /*
 
         cx: *const Context,
@@ -854,10 +854,10 @@ pub extern "C" fn rangeproof_rewind(mut outlen: usize, plen: usize) -> i32 {
 
 #[no_mangle]
 #[export_name = "rangeProofVerify"]
-pub extern "C" fn rangeproof_verify(mut outlen: usize, plen: usize) -> i32 {
+pub extern "C" fn rangeproof_verify(_outlen: usize, plen: usize) -> i32 {
     // mut outputlen: usize
     unsafe {
-        let mut value_out: u64 = 0;
+        //let mut value_out: u64 = 0;
         let mut min_value: u64 = 0;
         let mut max_value: u64 = 0;
         //let pk2 = jstry!(pubkey_parse(PK_INPUT.as_ptr(), inputpkLen), 0);
@@ -1019,12 +1019,12 @@ pub extern "C" fn pedersen_blind_sum(blinds_size: usize, n: usize, npositive: us
 #[no_mangle]
 #[export_name = "prepareMlsag"]
 pub extern "C" fn prepare_mlsag(
-    nOuts: usize,
-    nBlinded: usize,
-    vpInCommitsLen: usize,
-    vpBlindsLen: usize,
-    nCols: usize,
-    nRows: usize,
+    n_outs: usize,
+    n_blinded: usize,
+    vp_in_commits_len: usize,
+    vp_blinds_len: usize,
+    n_cols: usize,
+    n_rows: usize,
 ) -> i32 {
     unsafe {
         return secp256k1_prepare_mlsag(
@@ -1033,12 +1033,12 @@ pub extern "C" fn prepare_mlsag(
             EBUF3.as_mut_ptr(),
             M_INPUT.as_mut_ptr(),
             SK_INPUT.as_mut_ptr(),
-            nOuts,
-            nBlinded,
-            vpInCommitsLen,
-            vpBlindsLen,
-            nCols,
-            nRows,
+            n_outs,
+            n_blinded,
+            vp_in_commits_len,
+            vp_blinds_len,
+            n_cols,
+            n_rows,
             PCM_IN.as_mut_ptr(),
             PCM_OUT.as_mut_ptr(),
             BLINDS.as_mut_ptr(),
@@ -1056,7 +1056,12 @@ pub extern "C" fn prepare_mlsag(
 // ki (return), pc (return), ps (return)
 #[no_mangle]
 #[export_name = "generateMlsag"]
-pub extern "C" fn generate_mlsag(nCols: usize, nRows: usize, index: usize, sk_size: usize) -> i32 {
+pub extern "C" fn generate_mlsag(
+    n_cols: usize,
+    n_rows: usize,
+    index: usize,
+    sk_size: usize,
+) -> i32 {
     unsafe {
         return secp256k1_generate_mlsag(
             get_context(),
@@ -1066,8 +1071,8 @@ pub extern "C" fn generate_mlsag(nCols: usize, nRows: usize, index: usize, sk_si
             PS_OUTPUT.as_mut_ptr(),
             NONCE_OUTPUT.as_mut_ptr(),
             PREIMAGE_INPUT.as_mut_ptr(),
-            nCols,
-            nRows,
+            n_cols,
+            n_rows,
             index,
             sk_size,
             SKS_INPUT.as_mut_ptr(),
@@ -1085,13 +1090,13 @@ pub extern "C" fn generate_mlsag(nCols: usize, nRows: usize, index: usize, sk_si
 // everything const, only return matter
 #[no_mangle]
 #[export_name = "verifyMlsag"]
-pub extern "C" fn verify_mlsag(nCols: usize, nRows: usize) -> i32 {
+pub extern "C" fn verify_mlsag(n_cols: usize, n_rows: usize) -> i32 {
     unsafe {
         return secp256k1_verify_mlsag(
             get_context(),
             PREIMAGE_INPUT.as_mut_ptr(),
-            nCols,
-            nRows,
+            n_cols,
+            n_rows,
             PKS_INPUT.as_mut_ptr(),
             KI_BIG_OUTPUT.as_mut_ptr(),
             PC_OUTPUT.as_mut_ptr(),

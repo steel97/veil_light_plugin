@@ -1,4 +1,4 @@
-// ignore_for_file: empty_catches, non_constant_identifier_names, constant_identifier_names
+// ignore_for_file: empty_catches, non_constant_identifier_names, constant_identifier_names, unused_local_variable
 
 import 'dart:math';
 import 'dart:typed_data';
@@ -45,7 +45,7 @@ import 'package:veil_light_plugin/src/models/errors/ringsize_out_of_range.dart';
 import 'package:veil_light_plugin/src/models/errors/select_spendable_tx_for_value_failed.dart';
 import 'package:veil_light_plugin/src/models/errors/sign_and_verify_failed.dart';
 import 'package:veil_light_plugin/src/models/errors/tx_at_lease_one_recipient.dart';
-import 'package:veil_light_plugin/src/models/errors/tx_fee_and_change_calc_failed.dart';
+//import 'package:veil_light_plugin/src/models/errors/tx_fee_and_change_calc_failed.dart';
 import 'package:veil_light_plugin/src/models/errors/unimplemented_exception.dart';
 import 'package:veil_light_plugin/src/models/errors/unknown_output_type.dart';
 import 'package:veil_light_plugin/src/models/errors/update_change_output_commitment_failed.dart';
@@ -208,7 +208,7 @@ class LightwalletTransactionBuilder {
       r.address = destination;
       if (r.nType == OutputTypes.OUTPUT_STANDARD.value) {
         r.fScriptSet = true;
-        r.scriptPubKey = destination?.scriptPubKey;
+        r.scriptPubKey = destination.scriptPubKey;
       }
 
       vecSend.add(r);
@@ -228,8 +228,8 @@ class LightwalletTransactionBuilder {
 
     // Get change address - this is the same address we are sending from
     var sxAddr = CVeilStealthAddress();
-    sxAddr.fromData(scan_secret!, Stealth.getPubKey(scan_secret!),
-        hash160(spend_secret!), Stealth.getPubKey(spend_secret!), 0);
+    sxAddr.fromData(scan_secret!, Stealth.getPubKey(scan_secret),
+        hash160(spend_secret!), Stealth.getPubKey(spend_secret), 0);
 
     //sxAddr.scan_pubkey = Stealth.getPubKey(sxAddr.scan_secret!);
     //sxAddr.spend_pubkey = Stealth.getPubKey(spend_secret!); // TO-DO spend_secret.IsValid()
@@ -264,8 +264,8 @@ class LightwalletTransactionBuilder {
     // Get total value we are sending in vecSend
     var nValue = 0;
     for (var r in vecSend) {
-      nValue += r.nAmount ?? 0;
-      if (nValue < 0 || (r.nAmount ?? 0) < 0) {
+      nValue += r.nAmount;
+      if (nValue < 0 || (r.nAmount) < 0) {
         throw AmountsMustNotBeNegative(
             "Transaction amounts must not be negative");
       }
@@ -424,14 +424,11 @@ class LightwalletTransactionBuilder {
         var r = vecSend[nChangePosInOutRef.num];
 
         var extraFeePaid = nFeeRetRef.num - nFeeNeeded;
-        if (r.nAmount == null) {
-          r.nAmount = 0;
-        }
 
         r.nAmount += extraFeePaid;
         nFeeRetRef.num -= extraFeePaid;
       }
-    } else if (!pick_new_inputs) {
+    } /*else if (!pick_new_inputs) {
       // This shouldn't happen, we should have had enough excess
       // fee to pay for the new output and still meet nFeeNeeded
       // Or we should have just subtracted fee from recipients and
@@ -441,17 +438,14 @@ class LightwalletTransactionBuilder {
         throw TxFeeAndChangeCalcFailed(
             "Failed Transaction fee and change calculation failed");
       }
-    }
+    }*/
 
     // Try to reduce change to include necessary fee
     if (nChangePosInOutRef.num != -1 && nSubtractFeeFromAmount == 0) {
       var r = vecSend[nChangePosInOutRef.num];
       var additionalFeeNeeded = nFeeNeeded - nFeeRetRef.num;
-      if ((r.nAmount ?? 0) >=
+      if (r.nAmount >=
           coinSelection.MIN_FINAL_CHANGE.toInt() + additionalFeeNeeded) {
-        if (r.nAmount == null) {
-          r.nAmount = 0;
-        }
         r.nAmount -= additionalFeeNeeded;
         nFeeRetRef.num += additionalFeeNeeded;
       }
@@ -524,8 +518,8 @@ class LightwalletTransactionBuilder {
         vSecretColumns,
         vMI,
         spend_pubkey,
-        scan_secret!,
-        spend_secret!)) {
+        scan_secret,
+        spend_secret)) {
       throw InsertKeyImagesFailed("Failed LightWalletInsertKeyImages.");
     }
 
@@ -622,7 +616,7 @@ class LightwalletTransactionBuilder {
           Stealth.stealthSecret(scan_secret, vchEphemPK!, ecPubKey);
 
       var sShared = stealthSecretRes.sShared;
-      var pkExtracted = stealthSecretRes.pkExtracted;
+      //var pkExtracted = stealthSecretRes.pkExtracted;
 
       // TO-DO
       /*if (!sShared.IsValid()) {
@@ -672,7 +666,7 @@ class LightwalletTransactionBuilder {
         //if (r.address.type() == typeid(CStealthAddress)) {
         var sx = r.address?.stealthAddress;
 
-        Uint8List? sShared;
+        //Uint8List? sShared;
         Uint8List? pkSendTo;
         var k = 0;
         var nTries = 24;
@@ -682,7 +676,7 @@ class LightwalletTransactionBuilder {
             var spend_pubkey_t = Stealth.setPublicKey(sx.spend_pubkey!);
             var res =
                 Stealth.stealthSecret(sEphem!, scan_pubkey_t, spend_pubkey_t);
-            sShared = res.sShared;
+            //sShared = res.sShared;
             pkSendTo = res.pkExtracted;
             break;
           } catch (e) {}
@@ -695,11 +689,11 @@ class LightwalletTransactionBuilder {
         }
 
         r.pkTo = pkSendTo;
-        var idTo = hash160(r.pkTo!); //.GetID();
+        /*var idTo = */ hash160(r.pkTo!); //.GetID();
 
         if (sx!.prefix.number_bits > 0) {
           r.nStealthPrefix = LightwalletTransactionBuilder.fillStealthPrefix(
-              sx!.prefix.number_bits, sx!.prefix.bitfield);
+              sx.prefix.number_bits, sx.prefix.bitfield);
         }
         /*} else {
                     errorMsg = "RINGCT Outputs - Only able to send to stealth address for now.";
@@ -738,7 +732,7 @@ class LightwalletTransactionBuilder {
       //CKey keyShared;
       //ec_point pkSendTo;
 
-      Uint8List? keyShared;
+      //Uint8List? keyShared;
       Uint8List? pkSendTo;
       var k = 0;
       var nTries = 24;
@@ -747,7 +741,7 @@ class LightwalletTransactionBuilder {
           //if (StealthSecret(recipient.sEphem, sx.scan_pubkey, sx.spend_pubkey, keyShared, pkSendTo) == 0)
           var res = Stealth.stealthSecret(
               recipient.sEphem!, sx!.scan_pubkey!, sx.spend_pubkey!);
-          keyShared = res.sShared;
+          //keyShared = res.sShared;
           pkSendTo = res.pkExtracted;
           break;
         } catch (e) {}
@@ -1310,10 +1304,10 @@ class LightwalletTransactionBuilder {
           for (var i = 0; i < nSigRingSize.num; ++i) {
             if (i == vSecretColumns[l]) {
               var vSelectedTx = vCoins[k];
-              var coin = vSelectedTx;
-              var txhash = vSelectedTx.getTxHash();
+              //var coin = vSelectedTx;
+              /*var txhash = */ vSelectedTx.getTxHash();
 
-              var pk = vSelectedTx.getRingCtOut()?.getPubKey();
+              /*var pk = */ vSelectedTx.getRingCtOut()?.getPubKey();
               //CCmpPubKey pk = vSelectedTxes[k].ringctout.pk;
               //    memcpy(& vInputBlinds[l][k * 32], & vSelectedTxes[k].blind, 32);
               /*for (var ctr = 0; ctr < 32; ctr++) {
@@ -1536,7 +1530,7 @@ class LightwalletTransactionBuilder {
       Uint8List spend_pubkey,
       Uint8List scan_secret,
       Uint8List spend_secret) {
-    var rv = 0;
+    //var rv = 0;
     for (var l = 0; l < txNew.vin.length; ++l) {
       var txin = txNew.vin[l];
 
@@ -1553,13 +1547,13 @@ class LightwalletTransactionBuilder {
         var i = vSecretColumns[l];
         var nIndex = vMI[l][k][i];
 
-        var vchEphemPK = Uint8List(33);
+        //var vchEphemPK = Uint8List(33);
         CWatchOnlyTxWithIndex? foundTx;
 
         for (var tx in vSelectedTxes) {
           if (tx.getRingCtIndex() == nIndex) {
             //vchEphemPK = Buffer.from(tx.getRingCtOut()!.getVData()!, 33);
-            vchEphemPK = resizeBuf(tx.getRingCtOut()!.getVData()!, 33);
+            /*vchEphemPK = */ resizeBuf(tx.getRingCtOut()!.getVData()!, 33);
             //memcpy(& vchEphemPK[0], & tx.ringctout.vData[0], 33);
             //LogPrintf("Found the correct outpoint to generate vchEphemPK for index %d\n", nIndex);
             //console.log(`Found the correct outpoint to generate vchEphemPK for index ${nIndex}`);

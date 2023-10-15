@@ -1,3 +1,4 @@
+// ignore_for_file: empty_catches, non_constant_identifier_names, constant_identifier_names, unused_local_variable
 import 'dart:io';
 
 import 'package:veil_light_plugin/src/veil/lightwallet.dart';

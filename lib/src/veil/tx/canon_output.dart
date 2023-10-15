@@ -21,6 +21,14 @@ class CAnonOutput {
     _nCompromised = reader2.readUInt8();
   }
 
+  int? getBlockHeight() {
+    return _nBlockHeight;
+  }
+
+  int? getCompromised() {
+    return _nCompromised;
+  }
+
   Uint8List? getCommitment() {
     return _commitment;
   }

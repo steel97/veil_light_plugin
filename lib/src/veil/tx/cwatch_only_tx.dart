@@ -36,8 +36,8 @@ class CWatchOnlyTx {
     }
 
     _scanSecret = reader.readSlice(32);
-    var scanSecretValid = (reader.readUInt8()) > 0;
-    var scanSecretCompressed = (reader.readUInt8()) > 0;
+    /*var scanSecretValid = */ (reader.readUInt8()) > 0;
+    /*var scanSecretCompressed = */ (reader.readUInt8()) > 0;
 
     _txHash = reader.readSlice(32);
     _txIndex = reader.readUInt32();
@@ -51,6 +51,14 @@ class CWatchOnlyTx {
 
   WatchOnlyTxType? getType() {
     return _type;
+  }
+
+  Uint8List? getScanSecret() {
+    return _scanSecret;
+  }
+
+  int? getTxIndex() {
+    return _txIndex;
   }
 
   Uint8List? getKeyImage() {
