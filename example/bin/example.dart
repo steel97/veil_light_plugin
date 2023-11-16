@@ -17,7 +17,7 @@ Future<void> main(List<String> arguments) async {
   var rawMnemonic = await File('./example_mnemonic.txt').readAsString();
   var wallet = Lightwallet.fromMnemonic(mainNetParams, rawMnemonic.split(' '));
   var account = LightwalletAccount(wallet);
-  var mainAddress = account.getAddress(AccountType.STEALTH);
+  var mainAddress = account.getAddress(AccountType.CHANGE);
 
   print(mainAddress.getStringAddress());
   print('Your balance ${await account.getBalanceFormatted([
@@ -27,8 +27,10 @@ Future<void> main(List<String> arguments) async {
 //console.log(`Main address balance: ${mainBalance}`);
 
   var utxos = await mainAddress.getUnspentOutputs();
+  utxos.sort((a, b) =>
+      a.getAmount(mainNetParams).compareTo(b.getAmount(mainNetParams)));
   List<CWatchOnlyTxWithIndex> selectedUtxos = [];
-  double targetAmountToSend = 3;
+  double targetAmountToSend = 300000;
   double curAmount = 0;
   for (var utxo in utxos) {
     curAmount += utxo.getAmount(wallet.getChainParams());
@@ -37,6 +39,7 @@ Future<void> main(List<String> arguments) async {
       break;
     }
   }
+
   print('selected utxos: ${selectedUtxos.length}');
   var tx = await mainAddress.buildTransaction([
     CVeilRecipient(
@@ -44,6 +47,7 @@ Future<void> main(List<String> arguments) async {
             "sv1qqp3hydaxd9lemnsmsta52tcaj66v2rt2v6kresn302amwdftwgp3acpqg2dsprdfen7zk72lsx96k2aujgmv7z9j3nusv5a5zf95de8qv6s6qqq276sh6")!,
         targetAmountToSend)
   ], selectedUtxos, true);
+  print(tx.txdata);
   //var res = await Lightwallet.publishTransaction(tx.txdata!);
   //print(res.txid);
 }

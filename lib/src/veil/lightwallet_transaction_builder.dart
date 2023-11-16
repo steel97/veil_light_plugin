@@ -1770,8 +1770,12 @@ class LightwalletTransactionBuilder {
           //ECPair.makeRandom().privateKey!;
           //Buffer.alloc(32); - work for some reason
           // TO-DO should be this.makeNewKey(true)
-          vSplitCommitBlindingKeys[l] = Uint8List(
-              32); //Buffer.alloc(32);//this.makeNewKey(true);// Buffer.alloc(32);// this.makeNewKey(true);// ECPair.makeRandom({ compressed: true }).privateKey!;//.MakeNewKey(true);
+          if (vSplitCommitBlindingKeys.length < l + 1) {
+            vSplitCommitBlindingKeys.add(Uint8List(32));
+          } else {
+            vSplitCommitBlindingKeys[l] = Uint8List(
+                32); //Buffer.alloc(32);//this.makeNewKey(true);// Buffer.alloc(32);// this.makeNewKey(true);// ECPair.makeRandom({ compressed: true }).privateKey!;//.MakeNewKey(true);
+          }
         }
 
         var nCommitValue = 0;
