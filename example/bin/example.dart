@@ -14,6 +14,7 @@ Future<void> main(List<String> arguments) async {
   print(addr!.isValid());
   print(addr!.isValidStealthAddress());
   return;*/
+
   var rawMnemonic = await File('./example_mnemonic.txt').readAsString();
   var wallet = Lightwallet.fromMnemonic(mainNetParams, rawMnemonic.split(' '));
   var account = LightwalletAccount(wallet);
@@ -30,7 +31,7 @@ Future<void> main(List<String> arguments) async {
   utxos.sort((a, b) =>
       a.getAmount(mainNetParams).compareTo(b.getAmount(mainNetParams)));
   List<CWatchOnlyTxWithIndex> selectedUtxos = [];
-  double targetAmountToSend = 300000;
+  double targetAmountToSend = 150000;
   double curAmount = 0;
   for (var utxo in utxos) {
     curAmount += utxo.getAmount(wallet.getChainParams());
@@ -44,10 +45,10 @@ Future<void> main(List<String> arguments) async {
   var tx = await mainAddress.buildTransaction([
     CVeilRecipient(
         CVeilAddress.parse(wallet.getChainParams(),
-            "sv1qqp3hydaxd9lemnsmsta52tcaj66v2rt2v6kresn302amwdftwgp3acpqg2dsprdfen7zk72lsx96k2aujgmv7z9j3nusv5a5zf95de8qv6s6qqq276sh6")!,
+            "sv1qqp3hydaxd9lemnsmsta52tcaj66v2rt2v6kresn302amwdftwgp3acpqg2dsprdfen7zk72lsx96k2aujgmv7z9j3nusv5a5zf95de8qv6s6qqq276sh6")!, //sv1qqp3hydaxd9lemnsmsta52tcaj66v2rt2v6kresn302amwdftwgp3acpqg2dsprdfen7zk72lsx96k2aujgmv7z9j3nusv5a5zf95de8qv6s6qqq276sh6
         targetAmountToSend)
   ], selectedUtxos, true);
   print(tx.txdata);
   //var res = await Lightwallet.publishTransaction(tx.txdata!);
-  //print(res.txid);
+  //print(res.message);
 }

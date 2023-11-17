@@ -503,8 +503,10 @@ class LightwalletTransactionBuilder {
     vData = targetData;
     vpTx1.vData = vData;
 
-    List<Uint8List> vSplitCommitBlindingKeys =
-        []; //std:: vector < CKey > =(txNew.vin.length); // input amount commitment when > 1 mlsag
+    List<Uint8List> vSplitCommitBlindingKeys = List.filled(
+        txNew.vin.length,
+        Uint8List(
+            32)); //std:: vector < CKey > =(txNew.vin.length); // input amount commitment when > 1 mlsag
     //int nTotalInputs = 0;
 
     Map<int, Uint8List> vSigningKeys = {};
@@ -1577,6 +1579,7 @@ class LightwalletTransactionBuilder {
         // Keyimage is required for the tx hash
         var keyImage = ecc.getKeyImage(
             foundTx.getRingCtOut()!.getPubKey()!, keyDestination);
+        //var keyImageOr = foundTx.getRingCtOut()?.getKeyImage(); keyimage should be same as this
         if (keyImage == null) {
           throw KeyImagesFailed('Failed to get keyimage');
         }
@@ -1756,7 +1759,6 @@ class LightwalletTransactionBuilder {
           for (var k = 0; k < l; ++k) {
             vpAllBlinds.add(vSplitCommitBlindingKeys[k]);
           }
-          vSplitCommitBlindingKeys.add(Uint8List(1)); //Buffer.from("00", "hex")
 
           var res = ecc.pedersenBlindSum(vSplitCommitBlindingKeys[l],
               vpAllBlinds, vpAllBlinds.length, vpOutBlinds.length);
@@ -1770,12 +1772,9 @@ class LightwalletTransactionBuilder {
           //ECPair.makeRandom().privateKey!;
           //Buffer.alloc(32); - work for some reason
           // TO-DO should be this.makeNewKey(true)
-          if (vSplitCommitBlindingKeys.length < l + 1) {
-            vSplitCommitBlindingKeys.add(Uint8List(32));
-          } else {
-            vSplitCommitBlindingKeys[l] = Uint8List(
-                32); //Buffer.alloc(32);//this.makeNewKey(true);// Buffer.alloc(32);// this.makeNewKey(true);// ECPair.makeRandom({ compressed: true }).privateKey!;//.MakeNewKey(true);
-          }
+          vSplitCommitBlindingKeys[l] =
+              makeNewKey(true); //Uint8List(32); //makeNewKey(true);
+          //Uint8List(32); //Buffer.alloc(32);//this.makeNewKey(true);// Buffer.alloc(32);// this.makeNewKey(true);// ECPair.makeRandom({ compressed: true }).privateKey!;//.MakeNewKey(true);
         }
 
         var nCommitValue = 0;

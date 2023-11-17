@@ -100,6 +100,7 @@ class LightwalletAddress {
     }
 
     // get keyimages
+    // sometimes we have duplicate tx id's for some reason (but with different KI, which might be consumed on other tx, careful!)
     List<String> keyimages = [];
     for (var tx in txes) {
       var kib = tx.getKeyImage();
@@ -135,8 +136,11 @@ class LightwalletAddress {
     }
 
     List<CWatchOnlyTxWithIndex> res = [];
+    var txIndex = 0;
     for (var tx in _transactionsCache ?? []) {
-      var txInfo = _keyImageCache?.firstWhere((a) => a.txid == tx.getId());
+      var txInfo =
+          _keyImageCache?[txIndex]; // .firstWhere((a) => a.txid == tx.getId());
+      txIndex++;
       if (!(txInfo?.spent ?? true) &&
           (!(txInfo?.spentinmempool ?? false) || ignoreMemPoolSpend)) {
         res.add(tx);
