@@ -25,6 +25,7 @@ class LightwalletAddress {
   bip32.BIP32? _addressKey;
   AccountType _accountType = AccountType.DEFAULT;
   CVeilStealthAddress? _stealth;
+  final int _index;
   List<CWatchOnlyTxWithIndex>? _transactionsCache;
   List<KeyImageResult>? _keyImageCache;
   bool _syncWithNodeCalled = false;
@@ -34,8 +35,8 @@ class LightwalletAddress {
   AccountType getAccountType() => _accountType;
 
   LightwalletAddress(this._lwAccount, bip32.BIP32 account,
-      AccountType accountType, int index) {
-    _addressKey = account.deriveHardened(index);
+      AccountType accountType, this._index) {
+    _addressKey = account.deriveHardened(_index);
     _accountType = accountType;
     _stealth = CVeilStealthAddress();
     _stealth!.fromData(
@@ -44,6 +45,10 @@ class LightwalletAddress {
         hash160(getSpendKey()!.privateKey!),
         Stealth.getPubKey(getSpendKey()!.privateKey!),
         0);
+  }
+
+  int getIndex() {
+    return _index;
   }
 
   Future<String> syncWithNode({int fromBlock = 0}) async {
