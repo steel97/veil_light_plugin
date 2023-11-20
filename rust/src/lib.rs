@@ -924,7 +924,7 @@ pub extern "C" fn rangeproof_sign(
     value: u64,
     msg_len: usize,
 ) -> i32 {
-    println!("calling rangeproof sign");
+    println!("calling rangeproof sign"); // do not remove, for some reason without it app crashes on android (something with std?)
     unsafe {
         /*
         proof: *mut c_uchar,
