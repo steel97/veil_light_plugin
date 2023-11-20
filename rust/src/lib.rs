@@ -924,7 +924,7 @@ pub extern "C" fn rangeproof_sign(
     value: u64,
     msg_len: usize,
 ) -> i32 {
-    //println!("calling rangeproof sign");
+    println!("calling rangeproof sign");
     unsafe {
         /*
         proof: *mut c_uchar,
