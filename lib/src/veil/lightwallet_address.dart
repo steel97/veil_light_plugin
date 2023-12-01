@@ -74,6 +74,13 @@ class LightwalletAddress {
 
       address = importStatus.result?.stealth_address ?? '';
     } else {
+      var importStatusRes = await RpcRequester.send(RpcRequest(
+          jsonrpc: '1.0',
+          method: 'getwatchonlystatus',
+          params: [scanKeyPriv, spendKeyPub]));
+      var importStatus = GetWatchOnlyStatusResponse.fromJson(importStatusRes);
+      _syncStatus = importStatus.result?.status ?? 'unknown';
+
       address = importResponse.result!.stealth_address_bech!;
     }
 
