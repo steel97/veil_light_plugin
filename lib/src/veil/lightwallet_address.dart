@@ -52,6 +52,10 @@ class LightwalletAddress {
   }
 
   Future<String> syncWithNode({int fromBlock = 0}) async {
+    if (fromBlock == 0) {
+      fromBlock = (DateTime.now().millisecondsSinceEpoch / 1000).round();
+    }
+
     var scanKeyPriv = hex.encode(getScanKey()!.privateKey!);
     var spendKeyPub = hex.encode(getSpendKey()!.publicKey);
 
