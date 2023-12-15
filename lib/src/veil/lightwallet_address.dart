@@ -226,7 +226,8 @@ class LightwalletAddress {
       bool strategyUseSingleTxPriority,
       {int ringSize = 5}) async {
     var chainParams = _lwAccount.getWallet().getChainParams();
-    var vDummyOutputs = await Lightwallet.getAnonOutputs(vSpendableTx.length,
+    var vDummyOutputs = await Lightwallet.getAnonOutputs(
+        vSpendableTx.length * 2,
         ringSize: ringSize);
 
     // rebuild recipients

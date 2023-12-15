@@ -131,8 +131,27 @@ class LightwalletTransactionBuilder {
       List<CLightWalletAnonOutputData> vDummyOutputs,
       bool strategyUseSingleTxPriority,
       {int ringSize = 5}) {
+    List<CLightWalletAnonOutputData> vDummyOutputsReconstructed = [];
     List<CWatchOnlyTxWithIndex> vAnonTxes = [];
     List<CWatchOnlyTxWithIndex> vStealthTxes = [];
+
+    for (var dummyOut in vDummyOutputs) {
+      var indexUnusable = false;
+      for (var tx in vSpendableTx) {
+        if (tx.getRingCtIndex() == dummyOut.getIndex()) {
+          indexUnusable = true;
+          break;
+        }
+      }
+
+      if (!indexUnusable) {
+        vDummyOutputsReconstructed.add(dummyOut);
+      }
+    }
+
+    if (vDummyOutputsReconstructed.length < vSpendableTx.length) {
+      throw Exception('Not enough dummy outputs');
+    }
 
     for (var tx in vSpendableTx) {
       if (tx.getType() == WatchOnlyTxType.ANON) {
@@ -160,7 +179,7 @@ class LightwalletTransactionBuilder {
           address,
           resultingRecipients,
           vAnonTxes,
-          vDummyOutputs,
+          vDummyOutputsReconstructed,
           strategyUseSingleTxPriority,
           ringSize);
     } else if (vStealthTxes.isNotEmpty) {
@@ -1339,6 +1358,24 @@ class LightwalletTransactionBuilder {
       List<int> vSecretColumns,
       List<List<List<int>>> vMI) {
     // Fill in dummy signatures for fee calculation.
+    var knownIndexes = List.empty(growable: true);
+    var knownAnonIndexes = List.empty(growable: true);
+    for (var l = 0; l < txNew.vin.length; ++l) {
+      var txin = txNew.vin[l];
+      var nSigInputs = NumPass(0);
+      var nSigRingSize = NumPass(0);
+      txin.getAnonInfo(nSigInputs, nSigRingSize);
+
+      for (var k = 0; k < vMI[l].length; ++k) {
+        for (var i = 0; i < nSigRingSize.num; ++i) {
+          if (i == vSecretColumns[l]) {
+            knownIndexes.add(vMI[l][k][i]);
+            continue;
+          }
+        }
+      }
+    }
+
     var nCurrentLocation = 0;
     for (var l = 0; l < txNew.vin.length; ++l) {
       var txin = txNew.vin[l];
@@ -1356,7 +1393,15 @@ class LightwalletTransactionBuilder {
             }
             //console.log(`looking at vector index :${nCurrentLocation}, setting index for dummy: ${vDummyOutputs[nCurrentLocation].getIndex()}`);
             //LogPrintf("looking at vector index :%d, setting index for dummy: %d\n", nCurrentLocation, vDummyOutputs[nCurrentLocation].index);
-            vMI[l][k][i] = vDummyOutputs[nCurrentLocation].getIndex()!;
+            var indexTemp = vDummyOutputs[nCurrentLocation].getIndex()!;
+            if (knownIndexes.contains(indexTemp)) {
+              throw Exception('Found duplicate index: $indexTemp');
+            }
+            if (knownAnonIndexes.contains(indexTemp)) {
+              throw Exception('Found duplicate index: $indexTemp');
+            }
+            knownAnonIndexes.add(indexTemp);
+            vMI[l][k][i] = indexTemp;
             nCurrentLocation++;
           }
         }
