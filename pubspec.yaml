@@ -10,7 +10,7 @@ environment:
 dependencies:
   convert: ^3.1.1
   flutter_bitcoin: ^1.0.1
-  http: ^1.2.1
+  http: ^1.1.2
   json_annotation: ^4.8.0
   pointycastle: ^3.7.4
   ffi: ^2.1.2
