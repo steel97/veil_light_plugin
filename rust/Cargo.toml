@@ -12,7 +12,7 @@ crate-type = ["cdylib", "staticlib"]
 rand = "0.8.4"
 rand_hc = "0.3.2"
 byteorder = { version = "1.4.3", default-features = false }
-secp256k1-sys = { version = "0.4.1", features=["recovery"], git = "https://github.com/steel97/rust-secp256k1", rev = "e7de6c7f4f7127e86542591fc879716ad54c7c93" }
+secp256k1-sys = { version = "0.4.1", features=["recovery"], git = "https://github.com/steel97/rust-secp256k1", rev = "d00182a98ce4da0106982ee1676d49af7d590c8c" }
 
 [profile.release]
 lto = true
@@ -21,3 +21,4 @@ codegen-units = 1
 
 [profile.dev]
 panic = "abort"
+codegen-units = 1
