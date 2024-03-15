@@ -1,3 +1,5 @@
+cargo-features = ["trim-paths"]
+
 [package]
 name = "veil_light_plugin"
 version = "0.1.0"
@@ -15,10 +17,12 @@ byteorder = { version = "1.4.3", default-features = false }
 secp256k1-sys = { version = "0.4.1", features=["recovery"], git = "https://github.com/steel97/rust-secp256k1", rev = "d00182a98ce4da0106982ee1676d49af7d590c8c" }
 
 [profile.release]
+trim-paths = "all"
 lto = true
 panic = "abort"
 codegen-units = 1
 
 [profile.dev]
+trim-paths = "all"
 panic = "abort"
 codegen-units = 1
