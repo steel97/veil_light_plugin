@@ -20,6 +20,8 @@ import 'package:veil_light_plugin/src/veil/rpc_requester.dart';
 import 'package:veil_light_plugin/src/veil/stealth.dart';
 import 'package:veil_light_plugin/src/veil/tx/cwatch_only_tx_with_index.dart';
 
+const int lightWalletApiMaxTxs = 1000;
+
 class LightwalletAddress {
   final LightwalletAccount _lwAccount;
   bip32.BIP32? _addressKey;
@@ -101,18 +103,35 @@ class LightwalletAddress {
     var scanKey = getScanKey();
     var spendKey = getSpendKey();
 
-    var responseRes = await RpcRequester.send(RpcRequest(
-        jsonrpc: '1.0',
-        method: 'getwatchonlytxes',
-        params: [hex.encode(scanKey!.privateKey!)]));
-    var response = GetWatchOnlyTxesResponse.fromJson(responseRes);
-
     List<CWatchOnlyTxWithIndex> txes = [];
-    for (var tx in response.result?.anon ?? []) {
-      var txObj = CWatchOnlyTxWithIndex();
-      txObj.deserialize(Uint8List.fromList(hex.decode(tx.raw)), tx.raw);
-      txObj.getRingCtOut()?.decodeTx(spendKey!, scanKey);
-      txes.add(txObj);
+
+    var offset =
+        1; // ref: https://github.com/Veil-Project/veil/blob/471fba9f3011b3cd611f1d1de63efc0841135796/src/wallet/rpcwallet.cpp#L1208
+    while (true) {
+      var responseRes = await RpcRequester.send(RpcRequest(
+          jsonrpc: '1.0',
+          method: 'getwatchonlytxes',
+          params: [hex.encode(scanKey!.privateKey!), offset]));
+      var response = GetWatchOnlyTxesResponse.fromJson(responseRes);
+      //print(response);
+
+      var counter = 0;
+      for (var tx in response.result?.anon ?? []) {
+        if (txes.any((el) => el.raw == tx.raw)) {
+          counter = 0; // out of second condition
+          break;
+        }
+        counter++;
+        offset++;
+        var txObj = CWatchOnlyTxWithIndex();
+        txObj.deserialize(Uint8List.fromList(hex.decode(tx.raw)), tx.raw);
+        txObj.getRingCtOut()?.decodeTx(spendKey!, scanKey);
+        txes.add(txObj);
+      }
+
+      if (counter < lightWalletApiMaxTxs) {
+        break;
+      }
     }
 
     // get keyimages

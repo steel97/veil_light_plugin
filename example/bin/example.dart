@@ -18,7 +18,7 @@ Future<void> main(List<String> arguments) async {
   var rawMnemonic = await File('./example_mnemonic.txt').readAsString();
   var wallet = Lightwallet.fromMnemonic(mainNetParams, rawMnemonic.split(' '));
   var account = LightwalletAccount(wallet);
-  var mainAddress = account.getAddress(AccountType.CHANGE);
+  var mainAddress = account.getAddress(AccountType.STEALTH);
 
   print(mainAddress.getStringAddress());
   print('Your balance ${await account.getBalanceFormatted([
@@ -31,7 +31,7 @@ Future<void> main(List<String> arguments) async {
   utxos.sort((a, b) =>
       a.getAmount(mainNetParams).compareTo(b.getAmount(mainNetParams)));
   List<CWatchOnlyTxWithIndex> selectedUtxos = [];
-  double targetAmountToSend = 150000;
+  double targetAmountToSend = 1500;
   double curAmount = 0;
   for (var utxo in utxos) {
     curAmount += utxo.getAmount(wallet.getChainParams());
