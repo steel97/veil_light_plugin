@@ -3,6 +3,7 @@
 import 'dart:typed_data';
 
 import 'package:convert/convert.dart';
+import 'package:reaxdb_dart/reaxdb_dart.dart';
 import 'package:veil_light_plugin/src/core/crypto.dart';
 import 'package:veil_light_plugin/src/models/build_transaction_result.dart';
 import 'package:veil_light_plugin/src/models/rpc/lightwallet/get_watch_only_status_response.dart';
@@ -33,6 +34,7 @@ class LightwalletAddress {
   bool _syncWithNodeCalled = false;
   String _syncStatus =
       'unknown'; // TO-DO "failed" | "synced" | "scanning" = "scanning";
+  bool _txesSynced = false;
 
   AccountType getAccountType() => _accountType;
 
@@ -95,7 +97,8 @@ class LightwalletAddress {
     return address;
   }
 
-  Future<List<CWatchOnlyTxWithIndex>?> fetchTxes() async {
+  Future<List<CWatchOnlyTxWithIndex>?> fetchTxes(
+      {bool fetchIfCacheExists = true}) async {
     if (!_syncWithNodeCalled || _syncStatus != 'synced') {
       await syncWithNode();
     }
@@ -104,69 +107,131 @@ class LightwalletAddress {
     var spendKey = getSpendKey();
 
     List<CWatchOnlyTxWithIndex> txes = [];
+    List<CWatchOnlyTxWithIndex> txToFetch = [];
+    List<KeyImageResult> newKeyImageRes = [];
 
-    var offset =
-        1; // ref: https://github.com/Veil-Project/veil/blob/471fba9f3011b3cd611f1d1de63efc0841135796/src/wallet/rpcwallet.cpp#L1208
-    while (true) {
-      var responseRes = await RpcRequester.send(RpcRequest(
-          jsonrpc: '1.0',
-          method: 'getwatchonlytxes',
-          params: [hex.encode(scanKey!.privateKey!), offset]));
-      var response = GetWatchOnlyTxesResponse.fromJson(responseRes);
-      //print(response);
+    var cachedTxes = 0;
+    var db = await _lwAccount.getDb();
+    var collKey = '${getIndex()}-main';
+    if (db != null) {
+      var txData = await db.getAll('$collKey:*');
+      var txcnt = txData.length;
+      cachedTxes = txcnt;
 
-      var counter = 0;
-      for (var tx in response.result?.anon ?? []) {
-        if (txes.any((el) => el.raw == tx.raw)) {
-          counter = 0; // out of second condition
-          break;
-        }
-        counter++;
-        offset++;
+      // fill txes
+      for (var tx in txData.values) {
         var txObj = CWatchOnlyTxWithIndex();
-        txObj.deserialize(Uint8List.fromList(hex.decode(tx.raw)), tx.raw);
-        txObj.getRingCtOut()?.decodeTx(spendKey!, scanKey);
+        txObj.deserialize(Uint8List.fromList(hex.decode(tx['raw'])), tx['raw']);
+        txObj.getRingCtOut()?.decodeTx(spendKey!, scanKey!);
         txes.add(txObj);
       }
 
-      if (counter < lightWalletApiMaxTxs) {
-        break;
+      // fill key images
+      for (var tx in txData.values) {
+        var ki = tx['keyimage'];
+        if (ki == null) {
+          // TO-DO log?
+          newKeyImageRes.add(KeyImageResult());
+          continue;
+        }
+
+        newKeyImageRes.add(KeyImageResult.fromJson(ki));
+      }
+    }
+
+    final nTxCache = <String, dynamic>{};
+    if (cachedTxes == 0 || fetchIfCacheExists) {
+      var offset = cachedTxes;
+      while (true) {
+        var responseRes = await RpcRequester.send(
+            RpcRequest(jsonrpc: '1.0', method: 'getwatchonlytxes', params: [
+          hex.encode(scanKey!.privateKey!),
+          offset + 1
+        ])); // ref: https://github.com/Veil-Project/veil/blob/471fba9f3011b3cd611f1d1de63efc0841135796/src/wallet/rpcwallet.cpp#L1208
+        var response = GetWatchOnlyTxesResponse.fromJson(responseRes);
+
+        var counter = 0;
+        for (var tx in response.result?.anon ?? []) {
+          if (txes.any((el) => el.raw == tx.raw)) {
+            counter = 0; // out of second condition
+            break;
+          }
+
+          var txObj = CWatchOnlyTxWithIndex();
+          txObj.deserialize(Uint8List.fromList(hex.decode(tx.raw)), tx.raw);
+          txObj.getRingCtOut()?.decodeTx(spendKey!, scanKey);
+          txes.add(txObj);
+          txToFetch.add(txObj);
+
+          nTxCache['$collKey:$offset'] = {
+            'index': offset,
+            'txid': txObj.getId(),
+            // will be detecetd with special spent tx cache
+            //'type': 0, // 2 - unknown, 1 - spent, 2 - received
+            'keyimage': null,
+            'spent': true,
+            'amount': txObj.getAmount(_lwAccount.getWallet().getChainParams()),
+            'raw': tx.raw
+          };
+
+          counter++;
+          offset++;
+        }
+
+        if (counter < lightWalletApiMaxTxs) {
+          break;
+        }
       }
     }
 
     // get keyimages
     // sometimes we have duplicate tx id's for some reason (but with different KI, which might be consumed on other tx, careful!)
-    List<String> keyimages = [];
-    for (var tx in txes) {
-      var kib = tx.getKeyImage();
-      var ki = kib == null ? '' : hex.encode(kib);
-      keyimages.add(ki);
-    }
-    // get keyimages info
-    var kiResponseRes = await RpcRequester.send(RpcRequest(
-        jsonrpc: '1.0', method: 'checkkeyimages', params: [keyimages]));
-    var kiResponse = CheckKeyImagesResponse.fromJson(kiResponseRes);
-    if (kiResponse.error != null) return null;
 
-    // fix key images response
-    List<KeyImageResult> newKeyImageRes = [];
-    for (var i = 0; i < (kiResponse.result?.length ?? 0); i++) {
-      var tx = txes[i];
-      var keyImageRes = kiResponse.result![i];
-      keyImageRes.txid = tx.getId();
-      newKeyImageRes.add(keyImageRes);
+    if (txToFetch.isNotEmpty) {
+      List<String> keyimages = [];
+      for (var tx in txToFetch) {
+        var kib = tx.getKeyImage();
+        var ki = kib == null ? '' : hex.encode(kib);
+        keyimages.add(ki);
+      }
+      // get keyimages info
+      var kiResponseRes = await RpcRequester.send(RpcRequest(
+          jsonrpc: '1.0', method: 'checkkeyimages', params: [keyimages]));
+      var kiResponse = CheckKeyImagesResponse.fromJson(kiResponseRes);
+      if (kiResponse.error != null) return null;
+
+      // fix key images response
+      for (var i = 0; i < (kiResponse.result?.length ?? 0); i++) {
+        var tx = txToFetch[i];
+        var keyImageRes = kiResponse.result![i];
+        keyImageRes.txid = tx.getId();
+        newKeyImageRes.add(keyImageRes);
+
+        var json = keyImageRes.toJson();
+        var dbIndex = cachedTxes + i;
+
+        nTxCache['$collKey:$dbIndex']['keyimage'] = json;
+        nTxCache['$collKey:$dbIndex']['spent'] = keyImageRes.spent;
+      }
+    }
+
+    if (nTxCache.isNotEmpty) {
+      await db?.putAll(nTxCache);
     }
 
     _keyImageCache = newKeyImageRes;
     _transactionsCache = txes.sublist(0);
 
+    _txesSynced = true;
+    await db?.close();
+
     return _transactionsCache;
   }
 
   Future<List<CWatchOnlyTxWithIndex>> getUnspentOutputs(
-      {ignoreMemPoolSpend = false}) async {
+      {bool ignoreMemPoolSpend = false, bool fetchIfCacheExists = true}) async {
     if (_transactionsCache == null) {
-      await fetchTxes();
+      await fetchTxes(fetchIfCacheExists: fetchIfCacheExists);
       if (_transactionsCache == null) return [];
     }
 
@@ -185,9 +250,10 @@ class LightwalletAddress {
     return res;
   }
 
-  Future<List<CWatchOnlyTxWithIndex>> getSpentOutputsInMemoryPool() async {
+  Future<List<CWatchOnlyTxWithIndex>> getSpentOutputsInMemoryPool(
+      {bool fetchIfCacheExists = true}) async {
     if (_transactionsCache == null) {
-      await fetchTxes();
+      await fetchTxes(fetchIfCacheExists: fetchIfCacheExists);
       if (_transactionsCache == null) return [];
     }
 
@@ -206,8 +272,9 @@ class LightwalletAddress {
     return _transactionsCache;
   }
 
-  Future<double> getBalance(List<String>? substractTxes) async {
-    var res = await getUnspentOutputs();
+  Future<double> getBalance(List<String>? substractTxes,
+      {bool fetchIfCacheExists = true}) async {
+    var res = await getUnspentOutputs(fetchIfCacheExists: fetchIfCacheExists);
     if (res.isEmpty) return 0;
 
     // compute balance
@@ -219,8 +286,9 @@ class LightwalletAddress {
     return amount;
   }
 
-  Future getBalanceLocked() async {
-    var res = await getSpentOutputsInMemoryPool();
+  Future getBalanceLocked({bool fetchIfCacheExists = true}) async {
+    var res = await getSpentOutputsInMemoryPool(
+        fetchIfCacheExists: fetchIfCacheExists);
     if (res.isEmpty) return 0;
 
     // compute balance
@@ -272,5 +340,9 @@ class LightwalletAddress {
 
   String getSyncStatus() {
     return _syncStatus;
+  }
+
+  bool getTxSyncStatus() {
+    return _txesSynced;
   }
 }

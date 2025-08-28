@@ -334,6 +334,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.0"
+  reaxdb_dart:
+    dependency: transitive
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: "6d8e3e015518774a854589b367da41c62a3b45da"
+      url: "https://github.com/steel97/ReaxBD.git"
+    source: git
+    version: "1.4.0"
   shelf:
     dependency: transitive
     description:

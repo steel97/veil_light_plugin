@@ -1,6 +1,7 @@
 // ignore_for_file: constant_identifier_names
 
 import 'package:bip32/bip32.dart' as bip32;
+import 'package:reaxdb_dart/reaxdb_dart.dart';
 import 'package:veil_light_plugin/src/veil/lightwallet.dart';
 import 'package:veil_light_plugin/src/veil/lightwallet_address.dart';
 //import { BIP32Interface } from "bip32";
@@ -54,18 +55,28 @@ class LightwalletAccount {
   }
 
   Future<double> getBalanceRaw(
-      List<LightwalletAddress> input, List<String> substractTxes) async {
+      List<LightwalletAddress> input, List<String> substractTxes,
+      {bool fetchIfCacheExists = true}) async {
     double amount = 0;
     for (var addr in input) {
-      amount += await addr.getBalance(substractTxes);
+      amount += await addr.getBalance(substractTxes,
+          fetchIfCacheExists: fetchIfCacheExists);
     }
 
     return amount;
   }
 
+  Future syncWithNode(List<LightwalletAddress> input) async {
+    for (var addr in input) {
+      await addr.syncWithNode();
+    }
+  }
+
   Future<String> getBalanceFormatted(
-      List<LightwalletAddress> input, List<String> substractTxes) async {
-    var res = await getBalanceRaw(input, substractTxes);
+      List<LightwalletAddress> input, List<String> substractTxes,
+      {bool fetchIfCacheExists = true}) async {
+    var res = await getBalanceRaw(input, substractTxes,
+        fetchIfCacheExists: fetchIfCacheExists);
     return res.toStringAsFixed(_wallet.getChainParams().COIN_DIGITS);
   }
 
@@ -75,5 +86,9 @@ class LightwalletAccount {
 
   Lightwallet getWallet() {
     return _wallet;
+  }
+
+  Future<SimpleReaxDB?> getDb() async {
+    return await _wallet.getDb();
   }
 }

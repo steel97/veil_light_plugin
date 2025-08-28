@@ -1,5 +1,7 @@
 // ignore_for_file: empty_catches, non_constant_identifier_names, constant_identifier_names, unused_local_variable, prefer_single_quotes, unnecessary_import
+import 'dart:convert';
 import 'dart:io';
+import 'package:convert/convert.dart';
 import 'package:veil_light_plugin/src/veil/lightwallet.dart';
 import 'package:veil_light_plugin/src/veil/lightwallet_account.dart';
 import 'package:veil_light_plugin/src/veil/cveil_address.dart';
@@ -15,19 +17,29 @@ Future<void> main(List<String> arguments) async {
   print(addr!.isValidStealthAddress());
   return;*/
 
+  print('init');
   var rawMnemonic = await File('./example_mnemonic.txt').readAsString();
-  var wallet = Lightwallet.fromMnemonic(mainNetParams, rawMnemonic.split(' '));
+  var key = hex.encode(hash256(utf8.encode(rawMnemonic))).substring(0, 32);
+  print(key);
+  var wallet =
+      await Lightwallet.fromMnemonic(mainNetParams, rawMnemonic.split(' '),
+          storageName: "default",
+          encryptionKey: null, //key,
+          storagePath: './test.storage');
   var account = LightwalletAccount(wallet);
   var mainAddress = account.getAddress(AccountType.STEALTH);
 
   print(mainAddress.getStringAddress());
+  await account.syncWithNode([mainAddress]);
+  print('sync with node ended!');
   print('Your balance ${await account.getBalanceFormatted([
         mainAddress
-      ], List.empty())}');
+      ], List.empty(), fetchIfCacheExists: false)}');
 //const mainBalance = await mainAddress.getBalance();
 //console.log(`Main address balance: ${mainBalance}`);
 
-  var utxos = await mainAddress.getUnspentOutputs();
+  print('get utxo');
+  var utxos = await mainAddress.getUnspentOutputs(fetchIfCacheExists: false);
   utxos.sort((a, b) =>
       a.getAmount(mainNetParams).compareTo(b.getAmount(mainNetParams)));
   List<CWatchOnlyTxWithIndex> selectedUtxos = [];
@@ -48,7 +60,8 @@ Future<void> main(List<String> arguments) async {
             "sv1qqp3hydaxd9lemnsmsta52tcaj66v2rt2v6kresn302amwdftwgp3acpqg2dsprdfen7zk72lsx96k2aujgmv7z9j3nusv5a5zf95de8qv6s6qqq276sh6")!, //sv1qqp3hydaxd9lemnsmsta52tcaj66v2rt2v6kresn302amwdftwgp3acpqg2dsprdfen7zk72lsx96k2aujgmv7z9j3nusv5a5zf95de8qv6s6qqq276sh6
         targetAmountToSend)
   ], selectedUtxos, true);
-  print(tx.txdata);
+  print('done!');
+  //print(tx.txdata);
   //var res = await Lightwallet.publishTransaction(tx.txdata!);
   //print(res.message);
 }
