@@ -23,6 +23,16 @@ import 'package:veil_light_plugin/src/veil/tx/cwatch_only_tx_with_index.dart';
 
 const int lightWalletApiMaxTxs = 1000;
 
+class WatchOnlyTxWithIndex {
+  final CWatchOnlyTxWithIndex _tx;
+  final int _index;
+
+  WatchOnlyTxWithIndex(this._tx, this._index);
+
+  CWatchOnlyTxWithIndex getTx() => _tx;
+  int getIndex() => _index;
+}
+
 class LightwalletAddress {
   final LightwalletAccount _lwAccount;
   bip32.BIP32? _addressKey;
@@ -98,7 +108,7 @@ class LightwalletAddress {
   }
 
   Future<List<CWatchOnlyTxWithIndex>?> fetchTxes(
-      {bool fetchIfCacheExists = true}) async {
+      {bool fetchIfCacheExists = true, refreshUTXO = true}) async {
     if (!_syncWithNodeCalled || _syncStatus != 'synced') {
       await syncWithNode();
     }
@@ -187,36 +197,39 @@ class LightwalletAddress {
     // get keyimages
     // sometimes we have duplicate tx id's for some reason (but with different KI, which might be consumed on other tx, careful!)
 
-    if (txToFetch.isNotEmpty) {
-      List<String> keyimages = [];
-      for (var tx in txToFetch) {
-        var kib = tx.getKeyImage();
-        var ki = kib == null ? '' : hex.encode(kib);
-        keyimages.add(ki);
-      }
-      // get keyimages info
-      var kiResponseRes = await RpcRequester.send(RpcRequest(
-          jsonrpc: '1.0', method: 'checkkeyimages', params: [keyimages]));
-      var kiResponse = CheckKeyImagesResponse.fromJson(kiResponseRes);
-      if (kiResponse.error != null) return null;
-
-      // fix key images response
-      for (var i = 0; i < (kiResponse.result?.length ?? 0); i++) {
-        var tx = txToFetch[i];
-        var keyImageRes = kiResponse.result![i];
-        keyImageRes.txid = tx.getId();
-        newKeyImageRes.add(keyImageRes);
-
-        var json = keyImageRes.toJson();
-        var dbIndex = cachedTxes + i;
-
-        nTxCache['$collKey:$dbIndex']['keyimage'] = json;
-        nTxCache['$collKey:$dbIndex']['spent'] = keyImageRes.spent;
-      }
-    }
-
     if (nTxCache.isNotEmpty) {
       await db?.putAll(nTxCache);
+    }
+
+    if (txToFetch.isNotEmpty) {
+      var keyImages =
+          await updateKeyimages(txToFetch.asMap().entries.map((entry) {
+        int idx = entry.key;
+        CWatchOnlyTxWithIndex val = entry.value;
+        return WatchOnlyTxWithIndex(val, cachedTxes + idx);
+      }).toList());
+      newKeyImageRes.addAll(keyImages);
+    }
+
+    if (refreshUTXO) {
+      var idx = 0;
+      List<WatchOnlyTxWithIndex> checkKis = [];
+      for (var tx in txes) {
+        var ki = newKeyImageRes[idx];
+        if (!(ki.spent ?? false)) {
+          checkKis.add(WatchOnlyTxWithIndex(tx, idx));
+        }
+        idx++;
+      }
+
+      var kir = await updateKeyimages(checkKis);
+      for (var ki in kir) {
+        var idx = checkKis
+            .where((a) => a.getTx().getId() == ki.txid)
+            .first
+            .getIndex();
+        newKeyImageRes[idx] = ki;
+      }
     }
 
     _keyImageCache = newKeyImageRes;
@@ -226,6 +239,54 @@ class LightwalletAddress {
     await db?.close();
 
     return _transactionsCache;
+  }
+
+  Future<List<KeyImageResult>> updateKeyimages(
+      List<WatchOnlyTxWithIndex> txToFetch) async {
+    var db = await _lwAccount.getDb();
+    var collKey = '${getIndex()}-main';
+
+    List<String> keyimages = [];
+    List<KeyImageResult> newKeyImageRes = [];
+    final nTxCache = <String, dynamic>{};
+
+    for (var tx in txToFetch) {
+      var kib = tx.getTx().getKeyImage();
+      var ki = kib == null ? '' : hex.encode(kib);
+      keyimages.add(ki);
+    }
+    // get keyimages info
+    var kiResponseRes = await RpcRequester.send(RpcRequest(
+        jsonrpc: '1.0', method: 'checkkeyimages', params: [keyimages]));
+    var kiResponse = CheckKeyImagesResponse.fromJson(kiResponseRes);
+    if (kiResponse.error != null) return [];
+
+    // fix key images response
+    for (var i = 0; i < (kiResponse.result?.length ?? 0); i++) {
+      var tx = txToFetch[i];
+      var keyImageRes = kiResponse.result![i];
+      keyImageRes.txid = tx.getTx().getId();
+      newKeyImageRes.add(keyImageRes);
+
+      var json = keyImageRes.toJson();
+      var dbIndex = tx.getIndex();
+
+      var dbind = '$collKey:$dbIndex';
+      var data = await db?.get(dbind);
+      if (data != null) {
+        data['keyimage'] = json;
+        data['spent'] = keyImageRes.spent;
+        nTxCache['$collKey:$dbIndex'] = data;
+      }
+    }
+
+    await db?.deleteAll(nTxCache.keys.toList());
+
+    if (nTxCache.isNotEmpty) {
+      await db?.putAll(nTxCache);
+    }
+
+    return newKeyImageRes;
   }
 
   Future<List<CWatchOnlyTxWithIndex>> getUnspentOutputs(

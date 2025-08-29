@@ -34,12 +34,12 @@ Future<void> main(List<String> arguments) async {
   print('sync with node ended!');
   print('Your balance ${await account.getBalanceFormatted([
         mainAddress
-      ], List.empty(), fetchIfCacheExists: false)}');
+      ], List.empty(), fetchIfCacheExists: true)}');
 //const mainBalance = await mainAddress.getBalance();
 //console.log(`Main address balance: ${mainBalance}`);
 
   print('get utxo');
-  var utxos = await mainAddress.getUnspentOutputs(fetchIfCacheExists: false);
+  var utxos = await mainAddress.getUnspentOutputs(fetchIfCacheExists: true);
   utxos.sort((a, b) =>
       a.getAmount(mainNetParams).compareTo(b.getAmount(mainNetParams)));
   List<CWatchOnlyTxWithIndex> selectedUtxos = [];
