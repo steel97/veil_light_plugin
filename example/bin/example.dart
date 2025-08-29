@@ -25,7 +25,7 @@ Future<void> main(List<String> arguments) async {
       await Lightwallet.fromMnemonic(mainNetParams, rawMnemonic.split(' '),
           storageName: "default",
           encryptionKey: null, //key,
-          storagePath: './test.storage');
+          storagePath: './faucet-storage');
   var account = LightwalletAccount(wallet);
   var mainAddress = account.getAddress(AccountType.STEALTH);
 

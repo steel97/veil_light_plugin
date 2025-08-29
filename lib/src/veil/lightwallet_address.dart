@@ -156,15 +156,15 @@ class LightwalletAddress {
         var responseRes = await RpcRequester.send(
             RpcRequest(jsonrpc: '1.0', method: 'getwatchonlytxes', params: [
           hex.encode(scanKey!.privateKey!),
-          offset + 1
+          offset
         ])); // ref: https://github.com/Veil-Project/veil/blob/471fba9f3011b3cd611f1d1de63efc0841135796/src/wallet/rpcwallet.cpp#L1208
         var response = GetWatchOnlyTxesResponse.fromJson(responseRes);
-
         var counter = 0;
+        //print(response.result?.anon.length.toString());
         for (var tx in response.result?.anon ?? []) {
           if (txes.any((el) => el.raw == tx.raw)) {
-            counter = 0; // out of second condition
-            break;
+            //counter = 0; // out of second condition
+            continue;
           }
 
           var txObj = CWatchOnlyTxWithIndex();
@@ -201,6 +201,8 @@ class LightwalletAddress {
       await db?.putAll(nTxCache);
     }
 
+    await db?.close();
+
     if (txToFetch.isNotEmpty) {
       var keyImages =
           await updateKeyimages(txToFetch.asMap().entries.map((entry) {
@@ -236,7 +238,6 @@ class LightwalletAddress {
     _transactionsCache = txes.sublist(0);
 
     _txesSynced = true;
-    await db?.close();
 
     return _transactionsCache;
   }
@@ -254,6 +255,10 @@ class LightwalletAddress {
       var kib = tx.getTx().getKeyImage();
       var ki = kib == null ? '' : hex.encode(kib);
       keyimages.add(ki);
+      /*print('going to update ' +
+          tx.getIndex().toString() +
+          " and " +
+          tx.getTx().getId()!);*/
     }
     // get keyimages info
     var kiResponseRes = await RpcRequester.send(RpcRequest(
@@ -285,6 +290,8 @@ class LightwalletAddress {
     if (nTxCache.isNotEmpty) {
       await db?.putAll(nTxCache);
     }
+
+    db?.close();
 
     return newKeyImageRes;
   }
