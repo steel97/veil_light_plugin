@@ -144,6 +144,9 @@ class LightwalletTransactionBuilder {
         }
       }
 
+      // temporary skip check?
+      //indexUnusable = false;
+
       if (!indexUnusable) {
         vDummyOutputsReconstructed.add(dummyOut);
       }

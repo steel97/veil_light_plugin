@@ -1,4 +1,5 @@
 // ignore_for_file: constant_identifier_names
+import 'dart:ffi';
 import 'dart:typed_data';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:bip39/src/wordlists/english.dart';
@@ -109,14 +110,35 @@ class Lightwallet {
   static Future<List<CLightWalletAnonOutputData>> getAnonOutputs(
       int vtxoutCount,
       {int ringSize = 5}) async {
-    var responseRes = await RpcRequester.send(RpcRequest(
+
+    var ctr = 0;
+    List<AnonOutput> trueRes = [];
+
+    while (ctr < vtxoutCount) {
+
+      var responseRes = await RpcRequester.send(RpcRequest(
         jsonrpc: '1.0',
         method: 'getanonoutputs',
         params: [vtxoutCount, ringSize] // inputSize, ringSize
         ));
-    var response = GetAnonOutputsResponse.fromJson(responseRes);
-    return LightwalletTransactionBuilder.AnonOutputsToObj(
-        response.result ?? []);
+      //print(responseRes);
+      var response = GetAnonOutputsResponse.fromJson(responseRes);
+      if(response.result != null) {
+        for (var entr in response.result!) {
+          if(trueRes.any((AnonOutput o) => o.tx_hash == entr.tx_hash || o.tx_index == entr.tx_index)) {
+            continue;
+          }
+          trueRes.add(entr);
+          ctr++;
+        }
+
+        print('got anon inpts = ' + ctr.toString() + ', required = ' + vtxoutCount.toString());
+      }      
+    }
+    print('finished with ' + trueRes.length.toString());
+
+
+    return LightwalletTransactionBuilder.AnonOutputsToObj(trueRes);
   }
 
   static Future<PublishTransactionResult> publishTransaction(

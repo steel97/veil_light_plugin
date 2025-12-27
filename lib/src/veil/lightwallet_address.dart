@@ -156,17 +156,22 @@ class LightwalletAddress {
         var responseRes = await RpcRequester.send(
             RpcRequest(jsonrpc: '1.0', method: 'getwatchonlytxes', params: [
           hex.encode(scanKey!.privateKey!),
-          offset
+          offset + 1
         ])); // ref: https://github.com/Veil-Project/veil/blob/471fba9f3011b3cd611f1d1de63efc0841135796/src/wallet/rpcwallet.cpp#L1208
         var response = GetWatchOnlyTxesResponse.fromJson(responseRes);
         var counter = 0;
         //print(response.result?.anon.length.toString());
-        for (var tx in response.result?.anon ?? []) {
+        var txsz = response.result?.anon ?? [];
+        print('chkpt1 $offset, size: ${txsz.length} & ${txsz.isEmpty}');
+        var hasAnyUnknownTxes = false;
+        for (var tx in txsz) {
           if (txes.any((el) => el.raw == tx.raw)) {
+            counter++;
+            offset++;
             //counter = 0; // out of second condition
             continue;
           }
-
+          hasAnyUnknownTxes = true;
           var txObj = CWatchOnlyTxWithIndex();
           txObj.deserialize(Uint8List.fromList(hex.decode(tx.raw)), tx.raw);
           txObj.getRingCtOut()?.decodeTx(spendKey!, scanKey);
@@ -188,11 +193,16 @@ class LightwalletAddress {
           offset++;
         }
 
+        if (txsz.isEmpty || !hasAnyUnknownTxes) {
+          break;
+        }
+
         if (counter < lightWalletApiMaxTxs) {
           break;
         }
       }
     }
+    print('looking for ki');
 
     // get keyimages
     // sometimes we have duplicate tx id's for some reason (but with different KI, which might be consumed on other tx, careful!)
@@ -261,8 +271,10 @@ class LightwalletAddress {
           tx.getTx().getId()!);*/
     }
     // get keyimages info
+    print('chkpt2, cnt: ${keyimages.length}');
     var kiResponseRes = await RpcRequester.send(RpcRequest(
         jsonrpc: '1.0', method: 'checkkeyimages', params: [keyimages]));
+    print('chkpt3');
     var kiResponse = CheckKeyImagesResponse.fromJson(kiResponseRes);
     if (kiResponse.error != null) return [];
 
@@ -382,7 +394,7 @@ class LightwalletAddress {
       {int ringSize = 5}) async {
     var chainParams = _lwAccount.getWallet().getChainParams();
     var vDummyOutputs = await Lightwallet.getAnonOutputs(
-        vSpendableTx.length * 2,
+        vSpendableTx.length * 10,// * 2
         ringSize: ringSize);
 
     // rebuild recipients
