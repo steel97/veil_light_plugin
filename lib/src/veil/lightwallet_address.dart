@@ -150,24 +150,29 @@ class LightwalletAddress {
     }
 
     final nTxCache = <String, dynamic>{};
+    var isFirstAttempt = true;
     if (cachedTxes == 0 || fetchIfCacheExists) {
       var offset = cachedTxes;
       while (true) {
+        var reqOffset =  offset < 1 ? 1 : offset;
+        if(!isFirstAttempt) {
+          reqOffset = cachedTxes + 1;
+        }
         var responseRes = await RpcRequester.send(
             RpcRequest(jsonrpc: '1.0', method: 'getwatchonlytxes', params: [
           hex.encode(scanKey!.privateKey!),
-          offset < 1 ? 1 : offset
+          reqOffset
         ])); // ref: https://github.com/Veil-Project/veil/blob/471fba9f3011b3cd611f1d1de63efc0841135796/src/wallet/rpcwallet.cpp#L1208
         var response = GetWatchOnlyTxesResponse.fromJson(responseRes);
         var counter = 0;
         //print(response.result?.anon.length.toString());
         var txsz = response.result?.anon ?? [];
-        print('chkpt1 $offset, size: ${txsz.length} & ${txsz.isEmpty}');
+        print('chkpt1 $offset, reqoffset: $reqOffset, size: ${txsz.length} & ${txsz.isEmpty}');
         var hasAnyUnknownTxes = false;
         for (var tx in txsz) {
           if (txes.any((el) => el.raw == tx.raw)) {
             counter++;
-            offset++;
+            //offset++;
             //counter = 0; // out of second condition
             continue;
           }
@@ -193,8 +198,12 @@ class LightwalletAddress {
           offset++;
         }
 
-        if (txsz.isEmpty || !hasAnyUnknownTxes) {
-          break;
+        if ((txsz.isEmpty || !hasAnyUnknownTxes)) {
+          if(isFirstAttempt) {
+            isFirstAttempt = false;
+          } else {
+            break;
+          }
         }
 
         if (counter < lightWalletApiMaxTxs) {
@@ -237,12 +246,26 @@ class LightwalletAddress {
 
       var kir = await updateKeyimages(checkKis);
       for (var ki in kir) {
-        var idx = checkKis
+        //if(!(ki.spent ?? false)) {
+          var idx = checkKis
             .where((a) => a.getTx().getId() == ki.txid)
             .first
             .getIndex();
-        newKeyImageRes[idx] = ki;
+          newKeyImageRes[idx] = ki;
+        //}
       }
+
+      /*for (var ki in kir) {
+        if(ki.spent ?? false) {
+          var idx = checkKis
+            .where((a) => a.getTx().getId() == ki.txid)
+            .first
+            .getIndex();
+          newKeyImageRes[idx] = ki;
+        }
+      }*/
+
+
     }
 
     _keyImageCache = newKeyImageRes;
