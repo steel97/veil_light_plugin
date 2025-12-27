@@ -156,7 +156,7 @@ class LightwalletAddress {
         var responseRes = await RpcRequester.send(
             RpcRequest(jsonrpc: '1.0', method: 'getwatchonlytxes', params: [
           hex.encode(scanKey!.privateKey!),
-          offset + 1
+          offset < 1 ? 1 : offset
         ])); // ref: https://github.com/Veil-Project/veil/blob/471fba9f3011b3cd611f1d1de63efc0841135796/src/wallet/rpcwallet.cpp#L1208
         var response = GetWatchOnlyTxesResponse.fromJson(responseRes);
         var counter = 0;
@@ -227,6 +227,7 @@ class LightwalletAddress {
       var idx = 0;
       List<WatchOnlyTxWithIndex> checkKis = [];
       for (var tx in txes) {
+        // TO-DO: maybe always check key images?
         var ki = newKeyImageRes[idx];
         if (!(ki.spent ?? false)) {
           checkKis.add(WatchOnlyTxWithIndex(tx, idx));
